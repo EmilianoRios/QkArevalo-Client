@@ -14,6 +14,7 @@ import {
   Text,
   VStack
 } from '@chakra-ui/react'
+import { AxiosError } from 'axios'
 import { Field, Formik } from 'formik'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -51,7 +52,14 @@ const Login = () => {
       navigate(`/${PrivateRoutes.PRIVATE}`)
     } catch (error) {
       setIsSubmitting(false)
-      setLogInErrorMessage('Ha ocurrido un error intentelo más tarde')
+      if (error instanceof AxiosError) {
+        setLogInErrorMessage(
+          error?.response?.data?.error ||
+            'Ha ocurrido un error intentelo más tarde.'
+        )
+      } else {
+        setLogInErrorMessage('Ha ocurrido un error intentelo más tarde.')
+      }
     }
   }
 

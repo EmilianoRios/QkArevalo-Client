@@ -25,6 +25,7 @@ import {
   Text,
   VStack
 } from '@chakra-ui/react'
+import { AxiosError } from 'axios'
 import { Field, Formik, FormikHelpers } from 'formik'
 import { useEffect, useState } from 'react'
 import { CiMenuKebab } from 'react-icons/ci'
@@ -35,6 +36,8 @@ function Main() {
   const [clientErrorForm, setclientErrorForm] = useState<string>()
   const [clientFetchError, setClientFetchError] = useState<string>()
   const [listOfClients, setListOfClients] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [listOfClientsFiltered, setListOfClientsFiltered] = useState([])
 
   interface MyFormValues {
     name: string
@@ -79,12 +82,32 @@ function Main() {
     try {
       const data = await getAllClientsService()
       setListOfClients(data)
+      setListOfClientsFiltered(data)
     } catch (error) {
-      console.log(error)
-      setClientFetchError(
-        'Ha ocurrido un error al cargar los clientes, intente cerrando sesión y volviendo a ingresar.'
-      )
+      if (error instanceof AxiosError) {
+        setClientFetchError(
+          error?.response?.data?.error ||
+            'Ha ocurrido un error al cargar los clientes, intente cerrando sesión y volviendo a ingresar.'
+        )
+      } else {
+        setClientFetchError(
+          'Ha ocurrido un error al cargar los clientes, intente cerrando sesión y volviendo a ingresar.'
+        )
+      }
     }
+  }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchText = e.target.value
+    setSearchTerm(searchText)
+
+    const filteredItems = listOfClients.filter(
+      (item: ClientModelMap) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.dni.toLowerCase().includes(searchText.toLowerCase())
+    )
+
+    setListOfClientsFiltered(filteredItems)
   }
 
   const deleteOneClient = async (clientId: string) => {
@@ -105,9 +128,9 @@ function Main() {
       <NavBarPrivate title={'Mis Clientes'} />
       <Flex flexDirection={'column'} px={4}>
         <Divider my={4} />
-        <Flex h={'70vh'} overflow={'auto'} flexDirection={'column'} gap={2}>
-          {listOfClients &&
-            listOfClients.map((client: ClientModelMap) => {
+        <Flex h={'60vh'} overflow={'auto'} flexDirection={'column'} gap={2}>
+          {listOfClientsFiltered &&
+            listOfClientsFiltered.map((client: ClientModelMap) => {
               return (
                 <Card
                   key={client.id}
@@ -156,86 +179,95 @@ function Main() {
           )}
         </Flex>
         <Divider my={4} />
-        <Flex alignContent={'center'} alignItems={'center'} m={'0 auto'}>
-          <VStack>
-            <Formik
-              onSubmit={onSubmit}
-              validationSchema={validationSchema}
-              initialValues={initialValues}>
-              {(formik) => (
-                <form onSubmit={formik.handleSubmit}>
-                  <VStack pb={4}>
-                    <Flex gap={4} w={'100%'}>
-                      <FormControl
-                        isInvalid={Boolean(
-                          formik.errors.name && formik.touched.name
-                        )}>
-                        <FormLabel p={0} m={0}>
-                          Nombre:
-                        </FormLabel>
-                        <Field
-                          w={'100%'}
-                          type='string'
-                          name='name'
-                          placeholder='Nombre'
-                          as={Input}
-                        />
-                        <FormErrorMessage>
-                          {formik.errors.name}
-                        </FormErrorMessage>
-                      </FormControl>
-                      <FormControl
-                        isInvalid={Boolean(
-                          formik.errors.dni && formik.touched.dni
-                        )}>
-                        <FormLabel p={0} m={0}>
-                          DNI:
-                        </FormLabel>
-                        <Field
-                          type='string'
-                          name='dni'
-                          placeholder='DNI'
-                          as={Input}
-                        />
-                        <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
-                      </FormControl>
+        <Flex flexDirection={'column'}>
+          <Flex flexDirection={'column'} mb={4}>
+            <Text fontSize={'md'} className='chakra-form__label css-79e1m'>
+              Buscar:
+            </Text>
+            <Input
+              value={searchTerm}
+              onChange={(event) => {
+                handleSearch(event)
+              }}
+              placeholder='Nombre o DNI'
+              variant='outline'
+            />
+          </Flex>
+          <Formik
+            onSubmit={onSubmit}
+            validationSchema={validationSchema}
+            initialValues={initialValues}>
+            {(formik) => (
+              <form onSubmit={formik.handleSubmit}>
+                <VStack pb={4}>
+                  <Flex gap={4} w={'100%'}>
+                    <FormControl
+                      isInvalid={Boolean(
+                        formik.errors.name && formik.touched.name
+                      )}>
+                      <FormLabel p={0} m={0}>
+                        Nombre:
+                      </FormLabel>
+                      <Field
+                        w={'100%'}
+                        type='string'
+                        name='name'
+                        placeholder='Nombre'
+                        as={Input}
+                      />
+                      <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
+                    </FormControl>
+                    <FormControl
+                      isInvalid={Boolean(
+                        formik.errors.dni && formik.touched.dni
+                      )}>
+                      <FormLabel p={0} m={0}>
+                        DNI:
+                      </FormLabel>
+                      <Field
+                        type='string'
+                        name='dni'
+                        placeholder='DNI'
+                        as={Input}
+                      />
+                      <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
+                    </FormControl>
+                  </Flex>
+                  {clientErrorForm ? (
+                    <Flex
+                      alignItems={'center'}
+                      justifyContent={'center'}
+                      m={'0 auto'}
+                      p={1}
+                      borderRadius={10}
+                      bgClip={'text'}
+                      bgGradient={GlobalColors.WARNINGCOLOR}>
+                      <Text textAlign={'center'} as='b'>
+                        {clientErrorForm}
+                      </Text>
                     </Flex>
-                    {clientErrorForm ? (
-                      <Flex
-                        alignItems={'center'}
-                        justifyContent={'center'}
-                        m={'0 auto'}
-                        p={1}
-                        borderRadius={10}
-                        bgClip={'text'}
-                        bgGradient={GlobalColors.WARNINGCOLOR}>
-                        <Text textAlign={'center'} as='b'>
-                          {clientErrorForm}
-                        </Text>
-                      </Flex>
-                    ) : (
-                      ''
-                    )}
+                  ) : (
+                    ''
+                  )}
 
-                    <HStack alignContent={'center'} alignItems={'center'}>
-                      <Button
-                        type='submit'
-                        isLoading={isSubmitting}
-                        bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                        _hover={{
-                          bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                        }}
-                        p={4}
-                        w={'150px'}
-                        borderRadius={18}>
-                        Cargar
-                      </Button>
-                    </HStack>
-                  </VStack>
-                </form>
-              )}
-            </Formik>
-          </VStack>
+                  <HStack alignContent={'center'} alignItems={'center'}>
+                    <Button
+                      type='submit'
+                      isLoading={isSubmitting}
+                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+                      _hover={{
+                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+                      }}
+                      p={4}
+                      w={'150px'}
+                      borderRadius={18}>
+                      Cargar
+                    </Button>
+                  </HStack>
+                </VStack>
+              </form>
+            )}
+          </Formik>
         </Flex>
       </Flex>
     </LayoutPrivate>
