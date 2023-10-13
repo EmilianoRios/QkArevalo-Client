@@ -1,6 +1,6 @@
-import { UserAccessToken, UserEmptyInfo } from '@/models'
-import { createSlice } from '@reduxjs/toolkit'
+import { UserEmptyInfo } from '@/models'
 import { clearLocalStorage, persistLocalStorage } from '@/utils'
+import { createSlice } from '@reduxjs/toolkit'
 
 export const EmptyUserState: UserEmptyInfo = {
   id: 0,
@@ -17,8 +17,8 @@ export const userSlice = createSlice({
   name: 'user',
   initialState: EmptyUserState,
   reducers: {
-    createUser: (state, action) => {
-      persistLocalStorage<UserAccessToken>(AccessToken, action.payload.token)
+    createUser: (_state, action) => {
+      persistLocalStorage(AccessToken, action.payload.token)
       delete action.payload['token']
       return action.payload
     },
