@@ -39,6 +39,8 @@ function Main() {
   const [searchTerm, setSearchTerm] = useState('')
   const [listOfClientsFiltered, setListOfClientsFiltered] = useState([])
 
+  let number = listOfClients.length
+
   interface MyFormValues {
     name: string
     dni: string
@@ -139,11 +141,24 @@ function Main() {
                   border='1px solid'
                   borderColor={GlobalColors.BORDERCONTENT}>
                   <Flex alignItems={'center'} justifyContent={'space-between'}>
-                    <Flex flexDirection={'column'} overflow={'hidden'}>
-                      <Heading size={'md'} noOfLines={1}>
-                        {client.name}
-                      </Heading>
-                      <Text color={GlobalColors.EMPHASIZED}>{client.dni}</Text>
+                    <Flex
+                      overflow={'hidden'}
+                      gap={4}
+                      alignContent={'center'}
+                      alignItems={'center'}>
+                      {!searchTerm && (
+                        <Flex w={'auto'}>
+                          <Heading textAlign={'center'}>{number--}</Heading>
+                        </Flex>
+                      )}
+                      <Flex flexDirection={'column'}>
+                        <Heading size={'md'} noOfLines={1}>
+                          {client.name}
+                        </Heading>
+                        <Text color={GlobalColors.EMPHASIZED}>
+                          {client.dni}
+                        </Text>
+                      </Flex>
                     </Flex>
                     <Flex>
                       <Menu>
