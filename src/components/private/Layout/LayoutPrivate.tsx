@@ -21,7 +21,7 @@ const LayoutPrivate: React.FC<LayoutPrivateProps> = ({ children }) => {
         rounded={20}
         h={'auto'}
         borderColor={GlobalColors.BORDERCONTENT}
-        w={{ base: '90%', md: '70%', lg: '600px' }}>
+        w={{ base: '100%', md: '70%', lg: '600px' }}>
         {children}
       </Flex>
     </Flex>
