@@ -58,7 +58,7 @@ function Main() {
   })
   const cancelRef = React.useRef(null)
 
-  let number = listOfClients.length
+  let number = listOfClients.length || 0
 
   interface MyFormValues {
     name: string
