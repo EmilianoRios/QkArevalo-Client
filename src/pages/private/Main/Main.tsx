@@ -224,16 +224,18 @@ function Main() {
                       alignItems={'center'}>
                       {!searchTerm && (
                         <Flex w={'auto'}>
-                          <Heading textAlign={'center'}>
+                          <Heading textAlign={'center'} fontSize={'2rem'}>
                             {numberOfClients--}
                           </Heading>
                         </Flex>
                       )}
                       <Flex flexDirection={'column'}>
-                        <Heading size={'md'} noOfLines={1}>
+                        <Heading size={'md'} noOfLines={1} fontSize={'1rem'}>
                           {client.name}
                         </Heading>
-                        <Text color={GlobalColors.EMPHASIZED}>
+                        <Text
+                          color={GlobalColors.EMPHASIZED}
+                          fontSize={'0.9rem'}>
                           {client.dni}
                         </Text>
                       </Flex>
