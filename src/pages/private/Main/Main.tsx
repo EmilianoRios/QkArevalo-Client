@@ -56,7 +56,7 @@ function Main() {
     dni: '',
     status: ''
   })
-  const cancelRef = React.useRef()
+  const cancelRef = React.useRef(null)
 
   let number = listOfClients.length
 
