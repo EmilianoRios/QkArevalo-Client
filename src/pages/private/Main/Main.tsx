@@ -58,7 +58,7 @@ function Main() {
   })
   const cancelRef = React.useRef(null)
 
-  let number = listOfClients.length || 0
+  let numberOfClients = (listOfClients && listOfClients.length) || 0
 
   interface MyFormValues {
     name: string
@@ -224,7 +224,9 @@ function Main() {
                       alignItems={'center'}>
                       {!searchTerm && (
                         <Flex w={'auto'}>
-                          <Heading textAlign={'center'}>{number--}</Heading>
+                          <Heading textAlign={'center'}>
+                            {numberOfClients--}
+                          </Heading>
                         </Flex>
                       )}
                       <Flex flexDirection={'column'}>
