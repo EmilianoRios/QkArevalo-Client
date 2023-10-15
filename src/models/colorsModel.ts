@@ -21,5 +21,10 @@ export const GlobalColors = {
   BGWITHOPACITY: 'linear(to-tr, blackAlpha.800, blackAlpha.900)',
   BGNAVBAR: '#1b1b1b',
   COLORWHITE: 'white',
-  BGGRAY: 'whiteAlpha.100'
+  BGGRAY: 'whiteAlpha.100',
+  BGGRADIENTPRIMARY: '#0d0d0d',
+  BGRADIENTPAID: '#276749',
+  BGRADIENTCANCELLED: '#63171B',
+  BGRADIENTPENDING: '#ECC94B',
+  BGRADIENTDEFAULT: '#1b1b1b'
 }

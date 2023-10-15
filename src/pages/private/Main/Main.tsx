@@ -3,10 +3,18 @@ import { ClientModelMap, GlobalColors } from '@/models'
 import {
   createNewClientService,
   deleteOneClientService,
-  getAllClientsService
+  getAllClientsService,
+  updateOneClientService
 } from '@/services'
 import { formatearDni } from '@/utils'
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Button,
   Card,
   Divider,
@@ -20,14 +28,17 @@ import {
   Input,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
   MenuList,
+  MenuOptionGroup,
   Text,
-  VStack
+  VStack,
+  useDisclosure
 } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { Field, Formik, FormikHelpers } from 'formik'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CiMenuKebab } from 'react-icons/ci'
 import * as Yup from 'yup'
 
@@ -38,6 +49,14 @@ function Main() {
   const [listOfClients, setListOfClients] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [listOfClientsFiltered, setListOfClientsFiltered] = useState([])
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [userToDelete, setUserToDelete] = useState({
+    id: '',
+    name: '',
+    dni: '',
+    status: ''
+  })
+  const cancelRef = React.useRef()
 
   let number = listOfClients.length
 
@@ -115,10 +134,38 @@ function Main() {
   const deleteOneClient = async (clientId: string) => {
     try {
       await deleteOneClientService(clientId)
+      setUserToDelete({
+        id: '',
+        name: '',
+        dni: '',
+        status: ''
+      })
+      onClose()
       getAllClients()
     } catch (error) {
       getAllClients()
     }
+  }
+
+  const updateOneClient = async (clientId: string, status: string) => {
+    try {
+      await updateOneClientService({ clientId, status })
+      getAllClients()
+    } catch (error) {
+      getAllClients()
+    }
+  }
+
+  const setColorStatus = (status: string) => {
+    if (status === 'PAID') {
+      return GlobalColors.BGRADIENTPAID
+    } else if (status === 'PENDING') {
+      return GlobalColors.BGRADIENTPENDING
+    } else if (status === 'CANCELLED') {
+      return GlobalColors.BGRADIENTCANCELLED
+    }
+
+    return GlobalColors.BGRADIENTDEFAULT
   }
 
   useEffect(() => {
@@ -127,6 +174,33 @@ function Main() {
 
   return (
     <LayoutPrivate>
+      <AlertDialog
+        motionPreset='slideInBottom'
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered>
+        <AlertDialogOverlay />
+        <AlertDialogContent bg={GlobalColors.BGGRADIENTPRIMARY}>
+          <AlertDialogHeader>Eliminar cliente?</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            <Text>Estas seguro que deseas eliminar este cliente?</Text>
+            {userToDelete?.name} {userToDelete?.dni}
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={onClose}>
+              No
+            </Button>
+            <Button
+              bgGradient={GlobalColors.WARNINGCOLOR}
+              ml={3}
+              onClick={() => deleteOneClient(userToDelete.id)}>
+              Eliminar
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <NavBarPrivate title={'Mis Clientes'} />
       <Flex flexDirection={'column'} px={4}>
         <Divider my={4} />
@@ -137,7 +211,9 @@ function Main() {
                 <Card
                   key={client.id}
                   p={2}
-                  bgGradient={GlobalColors.BGWID}
+                  bgGradient={`linear(to-tr, ${setColorStatus(
+                    client.status
+                  )}, ${GlobalColors.BGGRADIENTPRIMARY})`}
                   border='1px solid'
                   borderColor={GlobalColors.BORDERCONTENT}>
                   <Flex alignItems={'center'} justifyContent={'space-between'}>
@@ -168,14 +244,54 @@ function Main() {
                           aria-label='Options'
                           variant='outline'
                         />
-                        <MenuList bg={'black'}>
-                          <MenuItem
-                            bg={'black'}
-                            onClick={() => {
-                              deleteOneClient(client.id)
-                            }}>
-                            Eliminar
-                          </MenuItem>
+                        <MenuList bg={'black'} gap={4}>
+                          <MenuOptionGroup title='Estados'>
+                            <Flex flexDirection={'column'} gap={2} m={2}>
+                              <MenuItem
+                                borderRadius={4}
+                                bg={GlobalColors.BGRADIENTPAID}
+                                onClick={() => {
+                                  updateOneClient(client.id, 'PAID')
+                                }}>
+                                Pagado
+                              </MenuItem>
+                              <MenuItem
+                                borderRadius={4}
+                                bg={GlobalColors.BGRADIENTPENDING}
+                                onClick={() => {
+                                  updateOneClient(client.id, 'PENDING')
+                                }}>
+                                Pendiente
+                              </MenuItem>
+                              <MenuItem
+                                borderRadius={4}
+                                bg={GlobalColors.BGRADIENTCANCELLED}
+                                onClick={() => {
+                                  updateOneClient(client.id, 'CANCELLED')
+                                }}>
+                                Cancelado
+                              </MenuItem>
+                              <MenuItem
+                                borderRadius={4}
+                                bg={GlobalColors.BGRADIENTDEFAULT}
+                                onClick={() => {
+                                  updateOneClient(client.id, 'DEFAULT')
+                                }}>
+                                Por Defecto
+                              </MenuItem>
+                            </Flex>
+                          </MenuOptionGroup>
+                          <MenuDivider />
+                          <MenuOptionGroup title='Opciones'>
+                            <MenuItem
+                              bgGradient={GlobalColors.WARNINGCOLOR}
+                              onClick={() => {
+                                setUserToDelete(client)
+                                onOpen()
+                              }}>
+                              Eliminar
+                            </MenuItem>
+                          </MenuOptionGroup>
                         </MenuList>
                       </Menu>
                     </Flex>
