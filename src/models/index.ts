@@ -1,4 +1,5 @@
 export * from './clientModel'
+export * from './clientStatusModel'
 export * from './colorsModel'
 export * from './roleModel'
 export * from './routesModel'

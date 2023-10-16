@@ -12,7 +12,7 @@ function RoleGuard({ role }: Props) {
   return userState.role === role ? (
     <Outlet />
   ) : (
-    <Navigate to={PrivateRoutes.PRIVATE} />
+    <Navigate to={`${PrivateRoutes.ME}`} />
   )
 }
 

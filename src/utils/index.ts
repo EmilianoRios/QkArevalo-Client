@@ -1,4 +1,4 @@
 export { default as RoutesWithNotFound } from './RoutesWithNotFound'
-export * from './formatearDni'
+export * from './formatDNI'
 export * from './getAccessToken'
 export * from './localStorage'

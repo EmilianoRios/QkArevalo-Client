@@ -23,6 +23,16 @@ export async function getAllClientsService() {
   return clientsData
 }
 
+export async function getAllClientsForEmployeeService(employeeId: string) {
+  const ACCESSTOKEN = getAccessToken()
+
+  const res = await axios.get(`${BASEURL}/${employeeId}`, {
+    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
+  })
+  const clientsData = res?.data?.data
+  return clientsData
+}
+
 export async function getOneClientService(clientId: string) {
   const ACCESSTOKEN = getAccessToken()
 
@@ -37,6 +47,16 @@ export async function updateOneClientService(data: object) {
   const ACCESSTOKEN = getAccessToken()
 
   const res = await axios.patch(`${BASEURL}/`, data, {
+    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
+  })
+  const clientData = res?.data?.data
+  return clientData
+}
+
+export async function updateAllStatusClientsForEmployeeService(data: object) {
+  const ACCESSTOKEN = getAccessToken()
+
+  const res = await axios.patch(`${BASEURL}/status`, data, {
     headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
   })
   const clientData = res?.data?.data

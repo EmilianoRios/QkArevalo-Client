@@ -1,4 +1,4 @@
-import { Main } from '@/pages'
+import { MainAdmin } from '@/pages'
 import { RoutesWithNotFound } from '@/utils'
 import { Route } from 'react-router-dom'
 
@@ -10,7 +10,7 @@ function AppPrivateRoutes({ isLoadingPrivate }: Props) {
   return (
     <RoutesWithNotFound isLoadingPrivate={isLoadingPrivate}>
       {/* --- BLOG ROUTES --- */}
-      <Route index element={<Main />} />
+      <Route index element={<MainAdmin />} />
     </RoutesWithNotFound>
   )
 }

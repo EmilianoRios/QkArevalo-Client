@@ -4,7 +4,7 @@ import { RoutesWithNotFound } from '@/utils'
 import { Route } from 'react-router-dom'
 import { AuthGuard, RoleGuard } from '@/guard'
 import { AppPrivateRoutes } from '@/routes'
-import { Login } from '@/pages'
+import { Login, Main } from '@/pages'
 
 interface Props {
   isLoadingPrivate: boolean
@@ -24,6 +24,7 @@ function AppPublicRoutes({ isLoadingPrivate }: Props) {
               element={<AppPrivateRoutes isLoadingPrivate={isLoadingPrivate} />}
             />
           </Route>
+          <Route path={`/me`} element={<Main />} />
         </Route>
       ) : (
         <Route element={<LoadingPage />} />

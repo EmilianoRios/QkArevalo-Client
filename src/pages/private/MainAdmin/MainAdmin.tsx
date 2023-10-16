@@ -1,9 +1,10 @@
-import { LayoutPrivate, NavBarPrivate } from '@/components'
+import { LayoutPrivate, NavBarPrivateAdmin } from '@/components'
 import { ClientModelMap, GlobalColors } from '@/models'
 import {
   createNewClientService,
   deleteOneClientService,
   getAllClientsForEmployeeService,
+  getAllClientsService,
   updateOneClientService
 } from '@/services'
 import { formatDNI } from '@/utils'
@@ -43,7 +44,7 @@ import { CiMenuKebab } from 'react-icons/ci'
 import { useSelector } from 'react-redux'
 import * as Yup from 'yup'
 
-function Main() {
+function MainAdmin() {
   const authState = useSelector(
     (state: { user: { id: string; name: string } }) => state.user
   )
@@ -51,6 +52,10 @@ function Main() {
   const [isLoadingList, setIsLoadingList] = useState<boolean>(false)
   const [clientErrorForm, setClientErrorForm] = useState<string>()
   const [clientFetchError, setClientFetchError] = useState<string>()
+  const [
+    updateListOfClientsFromChildComp,
+    setUpdateListOfClientsFromChildComp
+  ] = useState<boolean>(false)
   const [listOfClients, setListOfClients] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [listOfClientsFiltered, setListOfClientsFiltered] = useState([])
@@ -61,6 +66,7 @@ function Main() {
     dni: '',
     status: ''
   })
+  const [switchClientList, setSwitchClientList] = useState<boolean>(false)
   const cancelRef = React.useRef(null)
 
   let numberOfClients = (listOfClients && listOfClients.length) || 0
@@ -184,13 +190,37 @@ function Main() {
     setIsLoadingList(false)
   }, [authState])
 
+  const fetchAllClients = async () => {
+    setIsLoadingList(true)
+    try {
+      const data = await getAllClientsService()
+      setListOfClients(data)
+      setListOfClientsFiltered(data)
+      setSearchTerm('')
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setClientFetchError('Ha ocurrido un error al cargar los clientes.')
+      }
+    }
+    setIsLoadingList(false)
+  }
+
   const getAllClients = async () => {
-    fetchEmployeeClients()
+    if (!switchClientList) {
+      fetchEmployeeClients()
+    } else {
+      fetchAllClients()
+    }
   }
 
   useEffect(() => {
-    fetchEmployeeClients()
-  }, [fetchEmployeeClients])
+    if (!switchClientList) {
+      fetchEmployeeClients()
+    } else {
+      fetchAllClients()
+    }
+    setUpdateListOfClientsFromChildComp(false)
+  }, [switchClientList, fetchEmployeeClients, updateListOfClientsFromChildComp])
 
   return (
     <LayoutPrivate>
@@ -223,7 +253,11 @@ function Main() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <NavBarPrivate title={'Mis Clientes'} user={authState.name} />
+      <NavBarPrivateAdmin
+        title={switchClientList ? 'Todos los Clientes' : 'Mis Clientes'}
+        user={authState.name}
+        setStateUpdateList={setUpdateListOfClientsFromChildComp}
+      />
       <Flex flexDirection={'column'} px={4}>
         <Divider my={4} />
         <Flex h={'60vh'} overflow={'auto'} flexDirection={'column'} gap={2}>
@@ -406,8 +440,23 @@ function Main() {
                   ) : (
                     ''
                   )}
-
-                  <HStack alignContent={'center'} alignItems={'center'}>
+                  <HStack alignContent={'center'} alignItems={'space-between'}>
+                    <Button
+                      isLoading={isLoadingList}
+                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+                      _hover={{
+                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+                      }}
+                      p={4}
+                      w={'150px'}
+                      borderRadius={18}
+                      onClick={() => {
+                        switchClientList
+                          ? setSwitchClientList(false)
+                          : setSwitchClientList(true)
+                      }}>
+                      {switchClientList ? 'Mis Clientes' : 'Todos los Clientes'}
+                    </Button>
                     <Button
                       isLoading={isLoadingList}
                       bgGradient={GlobalColors.SENDMESSAGEBUTTON}
@@ -444,4 +493,4 @@ function Main() {
     </LayoutPrivate>
   )
 }
-export default Main
+export default MainAdmin
