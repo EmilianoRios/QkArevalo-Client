@@ -23,7 +23,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   Heading,
   IconButton,
   Input,
@@ -184,7 +183,7 @@ function MainAdmin() {
       setSearchTerm('')
     } catch (error) {
       if (error instanceof AxiosError) {
-        setClientFetchError('Ha ocurrido un error al cargar los clientes.')
+        setClientFetchError(error?.message)
       }
     }
     setIsLoadingList(false)
@@ -199,7 +198,7 @@ function MainAdmin() {
       setSearchTerm('')
     } catch (error) {
       if (error instanceof AxiosError) {
-        setClientFetchError('Ha ocurrido un error al cargar los clientes.')
+        setClientFetchError(error?.message)
       }
     }
     setIsLoadingList(false)
@@ -286,16 +285,27 @@ function MainAdmin() {
                         </Flex>
                       )}
                       <Flex flexDirection={'column'}>
-                        <Heading size={'md'} noOfLines={1} fontSize={'1rem'}>
-                          {client.name}
-                        </Heading>
-                        <Text
-                          color={GlobalColors.EMPHASIZED}
-                          fontSize={'0.9rem'}>
-                          {client.dni}
-                        </Text>
+                        <Flex
+                          flexDirection={'column'}
+                          w={switchClientList ? '250px' : 'auto'}>
+                          <Heading size={'md'} noOfLines={1} fontSize={'1rem'}>
+                            {client.name}
+                          </Heading>
+                          <Text
+                            color={GlobalColors.EMPHASIZED}
+                            fontSize={'0.9rem'}>
+                            {client.dni || 'Sin DNI.'}
+                          </Text>
+                        </Flex>
                       </Flex>
                     </Flex>
+                    {switchClientList && (
+                      <Flex
+                        justifyContent={'center'}
+                        alignContent={'flex-start'}>
+                        <Text>{client.employee?.name}</Text>
+                      </Flex>
+                    )}
                     <Flex>
                       <Menu>
                         <MenuButton
@@ -363,13 +373,64 @@ function MainAdmin() {
             <VStack pb={12}>
               <Text>
                 {clientFetchError
-                  ? 'Ha ocurrido un error!.'
+                  ? 'Ha ocurrido un error!. 😭'
                   : '¡Ningún cliente por aquí! 🙂'}
               </Text>
             </VStack>
           )}
         </Flex>
         <Divider my={4} />
+        <Flex
+          gap={4}
+          flexWrap={'wrap'}
+          alignContent={'center'}
+          alignItems={'center'}
+          m={'0 auto'}>
+          <Button
+            isLoading={isLoadingList}
+            bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+            _hover={{
+              bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+            }}
+            p={4}
+            w={'auto'}
+            borderRadius={18}
+            onClick={() => {
+              switchClientList
+                ? setSwitchClientList(false)
+                : setSwitchClientList(true)
+            }}>
+            <Text
+              fontSize={{
+                base: '0.8rem',
+                md: '0.8rem',
+                lg: '0.9rem'
+              }}>
+              {switchClientList ? 'Mis Clientes' : 'Todos los Clientes'}
+            </Text>
+          </Button>
+          <Button
+            isLoading={isLoadingList}
+            bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+            _hover={{
+              bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+            }}
+            p={4}
+            w={'auto'}
+            borderRadius={18}
+            onClick={() => {
+              getAllClients()
+            }}>
+            <Text
+              fontSize={{
+                base: '0.8rem',
+                md: '0.8rem',
+                lg: '0.9rem'
+              }}>
+              Actualizar Lista
+            </Text>
+          </Button>
+        </Flex>
         <Flex flexDirection={'column'}>
           <Flex flexDirection={'column'} mb={4}>
             <Text fontSize={'md'} className='chakra-form__label css-79e1m'>
@@ -391,38 +452,63 @@ function MainAdmin() {
             {(formik) => (
               <form onSubmit={formik.handleSubmit}>
                 <VStack pb={4}>
-                  <Flex gap={4} w={'100%'}>
-                    <FormControl
-                      isInvalid={Boolean(
-                        formik.errors.name && formik.touched.name
-                      )}>
-                      <FormLabel p={0} m={0}>
-                        Nombre:
-                      </FormLabel>
-                      <Field
-                        w={'100%'}
-                        type='string'
-                        name='name'
-                        placeholder='Nombre'
-                        as={Input}
-                      />
-                      <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
-                    </FormControl>
-                    <FormControl
-                      isInvalid={Boolean(
-                        formik.errors.dni && formik.touched.dni
-                      )}>
-                      <FormLabel p={0} m={0}>
-                        DNI:
-                      </FormLabel>
-                      <Field
-                        type='string'
-                        name='dni'
-                        placeholder='DNI'
-                        as={Input}
-                      />
-                      <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
-                    </FormControl>
+                  <Flex gap={4}>
+                    <Flex gap={4} w={'100%'}>
+                      <FormControl
+                        isInvalid={Boolean(
+                          formik.errors.name && formik.touched.name
+                        )}>
+                        <FormLabel p={0} m={0}>
+                          Nombre:
+                        </FormLabel>
+                        <Field
+                          w={'100%'}
+                          type='string'
+                          name='name'
+                          placeholder='Nombre'
+                          as={Input}
+                        />
+                        <FormErrorMessage>
+                          {formik.errors.name}
+                        </FormErrorMessage>
+                      </FormControl>
+                      <FormControl
+                        isInvalid={Boolean(
+                          formik.errors.dni && formik.touched.dni
+                        )}>
+                        <FormLabel p={0} m={0}>
+                          DNI:
+                        </FormLabel>
+                        <Field
+                          type='string'
+                          name='dni'
+                          placeholder='DNI'
+                          as={Input}
+                        />
+                        <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
+                      </FormControl>
+                    </Flex>
+                    <Flex alignContent={'end'} alignItems={'end'}>
+                      <Button
+                        type='submit'
+                        isLoading={isSubmitting}
+                        bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+                        _hover={{
+                          bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+                        }}
+                        p={4}
+                        w={'auto'}
+                        borderRadius={18}>
+                        <Text
+                          fontSize={{
+                            base: '0.8rem',
+                            md: '0.8rem',
+                            lg: '0.9rem'
+                          }}>
+                          Cargar
+                        </Text>
+                      </Button>
+                    </Flex>
                   </Flex>
                   {clientErrorForm ? (
                     <Flex
@@ -440,50 +526,6 @@ function MainAdmin() {
                   ) : (
                     ''
                   )}
-                  <HStack alignContent={'center'} alignItems={'space-between'}>
-                    <Button
-                      isLoading={isLoadingList}
-                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                      _hover={{
-                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                      }}
-                      p={4}
-                      w={'150px'}
-                      borderRadius={18}
-                      onClick={() => {
-                        switchClientList
-                          ? setSwitchClientList(false)
-                          : setSwitchClientList(true)
-                      }}>
-                      {switchClientList ? 'Mis Clientes' : 'Todos los Clientes'}
-                    </Button>
-                    <Button
-                      isLoading={isLoadingList}
-                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                      _hover={{
-                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                      }}
-                      p={4}
-                      w={'150px'}
-                      borderRadius={18}
-                      onClick={() => {
-                        getAllClients()
-                      }}>
-                      Actualizar Lista
-                    </Button>
-                    <Button
-                      type='submit'
-                      isLoading={isSubmitting}
-                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                      _hover={{
-                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                      }}
-                      p={4}
-                      w={'150px'}
-                      borderRadius={18}>
-                      Cargar
-                    </Button>
-                  </HStack>
                 </VStack>
               </form>
             )}

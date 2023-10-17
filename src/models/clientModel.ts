@@ -3,4 +3,5 @@ export interface ClientModelMap {
   name: string
   dni: string
   status: string
+  employee?: { name: string }
 }

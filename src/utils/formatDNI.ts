@@ -17,7 +17,7 @@ export function formatDNI(number: string) {
       return formattedNumber
     } else {
       // The number is not valid in any format
-      return 'Sin DNI.'
+      return null
     }
   }
 }

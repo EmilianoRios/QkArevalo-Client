@@ -22,7 +22,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   Heading,
   IconButton,
   Input,
@@ -51,6 +50,10 @@ function Main() {
   const [isLoadingList, setIsLoadingList] = useState<boolean>(false)
   const [clientErrorForm, setClientErrorForm] = useState<string>()
   const [clientFetchError, setClientFetchError] = useState<string>()
+  const [
+    updateListOfClientsFromChildComp,
+    setUpdateListOfClientsFromChildComp
+  ] = useState<boolean>(false)
   const [listOfClients, setListOfClients] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [listOfClientsFiltered, setListOfClientsFiltered] = useState([])
@@ -190,7 +193,8 @@ function Main() {
 
   useEffect(() => {
     fetchEmployeeClients()
-  }, [fetchEmployeeClients])
+    setUpdateListOfClientsFromChildComp(false)
+  }, [fetchEmployeeClients, updateListOfClientsFromChildComp])
 
   return (
     <LayoutPrivate>
@@ -223,7 +227,11 @@ function Main() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <NavBarPrivate title={'Mis Clientes'} user={authState.name} />
+      <NavBarPrivate
+        title={'Mis Clientes'}
+        user={authState.name}
+        setStateUpdateList={setUpdateListOfClientsFromChildComp}
+      />
       <Flex flexDirection={'column'} px={4}>
         <Divider my={4} />
         <Flex h={'60vh'} overflow={'auto'} flexDirection={'column'} gap={2}>
@@ -258,7 +266,7 @@ function Main() {
                         <Text
                           color={GlobalColors.EMPHASIZED}
                           fontSize={'0.9rem'}>
-                          {client.dni}
+                          {client.dni || 'Sin DNI.'}
                         </Text>
                       </Flex>
                     </Flex>
@@ -336,6 +344,33 @@ function Main() {
           )}
         </Flex>
         <Divider my={4} />
+        <Flex
+          gap={4}
+          justifyContent={'center'}
+          alignItems={'center'}
+          m={'0 auto'}>
+          <Button
+            isLoading={isLoadingList}
+            bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+            _hover={{
+              bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+            }}
+            p={4}
+            w={'auto'}
+            borderRadius={18}
+            onClick={() => {
+              getAllClients()
+            }}>
+            <Text
+              fontSize={{
+                base: '0.8rem',
+                md: '0.8rem',
+                lg: '0.9rem'
+              }}>
+              Actualizar Lista
+            </Text>
+          </Button>
+        </Flex>
         <Flex flexDirection={'column'}>
           <Flex flexDirection={'column'} mb={4}>
             <Text fontSize={'md'} className='chakra-form__label css-79e1m'>
@@ -357,38 +392,63 @@ function Main() {
             {(formik) => (
               <form onSubmit={formik.handleSubmit}>
                 <VStack pb={4}>
-                  <Flex gap={4} w={'100%'}>
-                    <FormControl
-                      isInvalid={Boolean(
-                        formik.errors.name && formik.touched.name
-                      )}>
-                      <FormLabel p={0} m={0}>
-                        Nombre:
-                      </FormLabel>
-                      <Field
-                        w={'100%'}
-                        type='string'
-                        name='name'
-                        placeholder='Nombre'
-                        as={Input}
-                      />
-                      <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
-                    </FormControl>
-                    <FormControl
-                      isInvalid={Boolean(
-                        formik.errors.dni && formik.touched.dni
-                      )}>
-                      <FormLabel p={0} m={0}>
-                        DNI:
-                      </FormLabel>
-                      <Field
-                        type='string'
-                        name='dni'
-                        placeholder='DNI'
-                        as={Input}
-                      />
-                      <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
-                    </FormControl>
+                  <Flex gap={4}>
+                    <Flex gap={4} w={'100%'}>
+                      <FormControl
+                        isInvalid={Boolean(
+                          formik.errors.name && formik.touched.name
+                        )}>
+                        <FormLabel p={0} m={0}>
+                          Nombre:
+                        </FormLabel>
+                        <Field
+                          w={'100%'}
+                          type='string'
+                          name='name'
+                          placeholder='Nombre'
+                          as={Input}
+                        />
+                        <FormErrorMessage>
+                          {formik.errors.name}
+                        </FormErrorMessage>
+                      </FormControl>
+                      <FormControl
+                        isInvalid={Boolean(
+                          formik.errors.dni && formik.touched.dni
+                        )}>
+                        <FormLabel p={0} m={0}>
+                          DNI:
+                        </FormLabel>
+                        <Field
+                          type='string'
+                          name='dni'
+                          placeholder='DNI'
+                          as={Input}
+                        />
+                        <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
+                      </FormControl>
+                    </Flex>
+                    <Flex alignContent={'end'} alignItems={'end'}>
+                      <Button
+                        type='submit'
+                        isLoading={isSubmitting}
+                        bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+                        _hover={{
+                          bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+                        }}
+                        p={4}
+                        w={'auto'}
+                        borderRadius={18}>
+                        <Text
+                          fontSize={{
+                            base: '0.8rem',
+                            md: '0.8rem',
+                            lg: '0.9rem'
+                          }}>
+                          Cargar
+                        </Text>
+                      </Button>
+                    </Flex>
                   </Flex>
                   {clientErrorForm ? (
                     <Flex
@@ -406,35 +466,6 @@ function Main() {
                   ) : (
                     ''
                   )}
-
-                  <HStack alignContent={'center'} alignItems={'center'}>
-                    <Button
-                      isLoading={isLoadingList}
-                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                      _hover={{
-                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                      }}
-                      p={4}
-                      w={'150px'}
-                      borderRadius={18}
-                      onClick={() => {
-                        getAllClients()
-                      }}>
-                      Actualizar Lista
-                    </Button>
-                    <Button
-                      type='submit'
-                      isLoading={isSubmitting}
-                      bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                      _hover={{
-                        bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                      }}
-                      p={4}
-                      w={'150px'}
-                      borderRadius={18}>
-                      Cargar
-                    </Button>
-                  </HStack>
                 </VStack>
               </form>
             )}

@@ -19,12 +19,19 @@ import React from 'react'
 import { BiMenu } from 'react-icons/bi'
 import { useSelector } from 'react-redux'
 
+type StateUpdateList = boolean
+
 interface NavbarPrivateProps {
   title: string
   user: string
+  setStateUpdateList: React.Dispatch<React.SetStateAction<StateUpdateList>>
 }
 
-const NavbarPrivate: React.FC<NavbarPrivateProps> = ({ title, user }) => {
+const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
+  title,
+  user,
+  setStateUpdateList
+}) => {
   const authState = useSelector((state: { user: { id: string } }) => state.user)
   return (
     <Flex justifyContent='space-between' w='100%' transition='0.2s'>
@@ -86,6 +93,7 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({ title, user }) => {
                         employeeId: authState.id,
                         status: `${StatusClient.DEFAULT}`
                       })
+                      setStateUpdateList(true)
                     }}>
                     Restablecer todos los estados
                   </MenuItem>

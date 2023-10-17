@@ -20,6 +20,7 @@ const LayoutPrivate: React.FC<LayoutPrivateProps> = ({ children }) => {
         bg={GlobalColors.BGCONTENT}
         rounded={20}
         h={'auto'}
+        overflow={'hidden'}
         borderColor={GlobalColors.BORDERCONTENT}
         w={{ base: '100%', md: '70%', lg: '600px' }}>
         {children}
