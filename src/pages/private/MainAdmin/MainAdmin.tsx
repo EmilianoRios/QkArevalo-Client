@@ -131,7 +131,7 @@ function MainAdmin() {
     const filteredItems = listOfClients.filter(
       (item: ClientModelMap) =>
         item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.dni.toLowerCase().includes(searchText.toLowerCase())
+        item.dni?.toLowerCase().includes(searchText.toLowerCase())
     )
 
     setListOfClientsFiltered(filteredItems)
@@ -279,34 +279,28 @@ function MainAdmin() {
                       alignItems={'center'}>
                       {!searchTerm && (
                         <Flex w={'auto'}>
-                          <Heading textAlign={'center'} fontSize={'2rem'}>
+                          <Heading textAlign={'center'} fontSize={'1.3rem'}>
                             {numberOfClients--}
                           </Heading>
                         </Flex>
                       )}
                       <Flex flexDirection={'column'}>
-                        <Flex
-                          flexDirection={'column'}
-                          w={switchClientList ? '250px' : 'auto'}>
-                          <Heading size={'md'} noOfLines={1} fontSize={'1rem'}>
-                            {client.name}
-                          </Heading>
-                          <Text
-                            color={GlobalColors.EMPHASIZED}
-                            fontSize={'0.9rem'}>
-                            {client.dni || 'Sin DNI.'}
+                        <Heading size={'md'} fontSize={'0.9rem'} noOfLines={1}>
+                          {client.name}
+                        </Heading>
+                        <Text
+                          color={GlobalColors.EMPHASIZED}
+                          fontSize={'0.8rem'}>
+                          {client.dni || 'Sin DNI.'}
+                        </Text>
+                        {switchClientList && (
+                          <Text fontSize={'0.7rem'}>
+                            De: {client.employee?.name}
                           </Text>
-                        </Flex>
+                        )}
                       </Flex>
                     </Flex>
-                    {switchClientList && (
-                      <Flex
-                        justifyContent={'center'}
-                        alignContent={'flex-start'}>
-                        <Text>{client.employee?.name}</Text>
-                      </Flex>
-                    )}
-                    <Flex>
+                    <Flex justifyContent={'center'} alignContent={'center'}>
                       <Menu>
                         <MenuButton
                           as={IconButton}

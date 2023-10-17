@@ -129,7 +129,7 @@ function Main() {
     const filteredItems = listOfClients.filter(
       (item: ClientModelMap) =>
         item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.dni.toLowerCase().includes(searchText.toLowerCase())
+        item.dni?.toLowerCase().includes(searchText.toLowerCase())
     )
 
     setListOfClientsFiltered(filteredItems)
@@ -260,12 +260,12 @@ function Main() {
                         </Flex>
                       )}
                       <Flex flexDirection={'column'}>
-                        <Heading size={'md'} noOfLines={1} fontSize={'1rem'}>
+                        <Heading size={'md'} noOfLines={1} fontSize={'0.9rem'}>
                           {client.name}
                         </Heading>
                         <Text
                           color={GlobalColors.EMPHASIZED}
-                          fontSize={'0.9rem'}>
+                          fontSize={'0.8rem'}>
                           {client.dni || 'Sin DNI.'}
                         </Text>
                       </Flex>
