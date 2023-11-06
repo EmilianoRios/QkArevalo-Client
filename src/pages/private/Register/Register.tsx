@@ -242,7 +242,6 @@ const Register = () => {
                     Registrar
                   </Button>
                   <Button
-                    type='submit'
                     bgGradient={GlobalColors.SENDMESSAGEBUTTON}
                     _hover={{
                       bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
