@@ -5,6 +5,9 @@ import App from './App'
 import { ThemeChakraui } from '@/config'
 import { Provider } from 'react-redux'
 import { store } from '@/redux'
+import { AxiosInterceptor } from '@/services'
+
+AxiosInterceptor()
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

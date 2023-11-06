@@ -1,74 +1,80 @@
-import { getAccessToken } from '@/utils'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 const BASEURL = import.meta.env.VITE_DOMAIN + '/api/v1/clients'
 
-export async function createNewClientService(data: object) {
-  const ACCESSTOKEN = getAccessToken()
-
-  const res = await axios.post(`${BASEURL}/`, data, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientData = res?.data?.data
-  return clientData
+export function createNewClientService(data: object) {
+  return axios
+    .post(`${BASEURL}/`, data)
+    .then((res) => res?.data?.data)
+    .catch((err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.data?.error === 'P2002') {
+          throw 'El cliente ingresado ya existe.'
+        }
+        throw 'Ha ocurrido un error al cargar el cliente.'
+      }
+    })
 }
 
-export async function getAllClientsService() {
-  const ACCESSTOKEN = getAccessToken()
-
-  const res = await axios.get(`${BASEURL}/`, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientsData = res?.data?.data
-  return clientsData
+export function getAllClientsService() {
+  return axios
+    .get(`${BASEURL}/`)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
 }
 
-export async function getAllClientsForEmployeeService(employeeId: string) {
-  const ACCESSTOKEN = getAccessToken()
-
-  const res = await axios.get(`${BASEURL}/${employeeId}`, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientsData = res?.data?.data
-  return clientsData
+export function getAllClientsForEmployeeService(employeeId: string) {
+  return axios
+    .get(`${BASEURL}/${employeeId}`)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
 }
 
-export async function getOneClientService(clientId: string) {
-  const ACCESSTOKEN = getAccessToken()
-
-  const res = await axios.get(`${BASEURL}/${clientId}/`, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientData = res?.data?.data
-  return clientData
+export function getOneClientService(clientId: string) {
+  return axios
+    .get(`${BASEURL}/${clientId}/`)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
 }
 
-export async function updateOneClientService(data: object) {
-  const ACCESSTOKEN = getAccessToken()
-
-  const res = await axios.patch(`${BASEURL}/`, data, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientData = res?.data?.data
-  return clientData
+export function updateOneClientService(data: object) {
+  return axios
+    .patch(`${BASEURL}/`, data)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
 }
 
-export async function updateAllStatusClientsForEmployeeService(data: object) {
-  const ACCESSTOKEN = getAccessToken()
-
-  const res = await axios.patch(`${BASEURL}/status`, data, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientData = res?.data?.data
-  return clientData
+export function updateAllStatusClientsForEmployeeService(data: object) {
+  return axios
+    .patch(`${BASEURL}/status`, data)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
 }
 
-export async function deleteOneClientService(clientId: string) {
-  const ACCESSTOKEN = getAccessToken()
+export function deleteOneClientService(clientId: string) {
+  return axios
+    .delete(`${BASEURL}/${clientId}`)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
+}
 
-  const res = await axios.delete(`${BASEURL}/${clientId}`, {
-    headers: { Authorization: `Bearer ${ACCESSTOKEN}` }
-  })
-  const clientData = res?.data?.data
-  return clientData
+export function deleteManyClientsService(employeeId: string) {
+  return axios
+    .delete(`${BASEURL}/many/${employeeId}`)
+    .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
 }

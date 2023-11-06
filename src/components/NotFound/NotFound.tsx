@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Link, Text } from '@chakra-ui/react'
 
 import { Link as ReactLink } from 'react-router-dom'
-import { GlobalColors } from '@/models'
+import { GlobalColors, PrivateRoutes } from '@/models'
 
 const NotFound = () => {
   return (
@@ -16,11 +16,20 @@ const NotFound = () => {
         <Text fontSize={{ base: '10rem', lg: '20rem' }}>404</Text>
       </Box>
       <Box position={'absolute'} pt={{ base: 40, lg: 80 }}>
-        <Text fontSize={{ base: '2rem', lg: '6rem' }}>
+        <Text
+          fontSize={{
+            base: '0.8rem',
+            sm: '2rem',
+            md: '3rem',
+            lg: '4rem'
+          }}>
           Página no encontrada.
         </Text>
       </Box>
-      <Link as={ReactLink} to={'/'} pt={{ base: 10, lg: 0 }}>
+      <Link
+        as={ReactLink}
+        to={`/${PrivateRoutes.PRIVATE}`}
+        pt={{ base: 10, lg: 0 }}>
         <Button
           bgGradient={GlobalColors.SENDMESSAGEBUTTON}
           _hover={{

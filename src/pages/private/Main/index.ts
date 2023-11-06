@@ -1,1 +1,8 @@
 export { default as Main } from './Main'
+export * from './components/DeleteDialog'
+export * from './components/DeleteManyDialog'
+export * from './components/FormClient'
+export * from './components/ListOfClients'
+export * from './components/MenuClient'
+export * from './components/Navbar'
+export * from './components/SearchClient'

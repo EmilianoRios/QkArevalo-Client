@@ -1,8 +1,9 @@
 import { GlobalColors } from '@/models'
 import { resetUser } from '@/redux'
-import { Button } from '@chakra-ui/react'
+import { Button, Icon, Text } from '@chakra-ui/react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { HiOutlineLogout } from 'react-icons/hi'
 
 const LogOut = () => {
   const navigate = useNavigate()
@@ -25,7 +26,9 @@ const LogOut = () => {
         color: GlobalColors.EMPHASIZED
       }}
       onClick={logOut}>
-      Cerrar Sesión
+      <Text display={'flex'} alignItems={'center'} gap={1}>
+        Cerrar Sesión <Icon as={HiOutlineLogout} />
+      </Text>
     </Button>
   )
 }

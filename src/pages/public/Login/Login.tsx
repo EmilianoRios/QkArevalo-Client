@@ -16,12 +16,15 @@ import {
 } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { Field, Formik } from 'formik'
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
 const Login = () => {
+  const authState = useSelector(
+    (state: { user: { id: string; name: string; role: string } }) => state.user
+  )
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState<boolean>()
@@ -62,6 +65,15 @@ const Login = () => {
       }
     }
   }
+
+  useEffect(() => {
+    const goToDashBoard = () => {
+      navigate(`/${PrivateRoutes.PRIVATE}`)
+    }
+    if (authState.id) {
+      goToDashBoard()
+    }
+  }, [navigate, authState.id])
 
   return (
     <Flex

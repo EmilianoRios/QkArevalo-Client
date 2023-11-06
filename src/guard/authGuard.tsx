@@ -8,7 +8,9 @@ interface Props {
 }
 
 const PrivateValidationRoutes = <Outlet />
-const PublicValidationRoutes = <Navigate replace to={PrivateRoutes.PRIVATE} />
+const PublicValidationRoutes = (
+  <Navigate replace to={`/${PrivateRoutes.PRIVATE}`} />
+)
 const LoginRoute = <Navigate replace to={'/'} />
 
 function AuthGuard({ privateValidation }: Props) {

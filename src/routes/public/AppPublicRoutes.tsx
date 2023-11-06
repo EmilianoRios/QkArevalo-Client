@@ -24,7 +24,7 @@ function AppPublicRoutes({ isLoadingPrivate }: Props) {
               element={<AppPrivateRoutes isLoadingPrivate={isLoadingPrivate} />}
             />
           </Route>
-          <Route path={`/me`} element={<Main />} />
+          <Route path={`/${PrivateRoutes.ME}`} element={<Main />} />
         </Route>
       ) : (
         <Route element={<LoadingPage />} />

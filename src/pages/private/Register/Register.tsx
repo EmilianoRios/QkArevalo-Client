@@ -1,7 +1,5 @@
 /* import { FormSinglePage } from '@/components' */
 import { GlobalColors, PrivateRoutes } from '@/models'
-import { createUser, resetUser } from '@/redux'
-import { logInUserService } from '@/services'
 import {
   Box,
   Button,
@@ -10,63 +8,69 @@ import {
   FormErrorMessage,
   FormLabel,
   Heading,
+  Icon,
   Input,
+  InputGroup,
+  InputRightElement,
+  Radio,
+  RadioGroup,
+  Stack,
   Text,
   VStack
 } from '@chakra-ui/react'
-import { AxiosError } from 'axios'
-import { Field, Formik } from 'formik'
+import { Field, Formik, FormikHelpers } from 'formik'
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
+import { Roles } from '@/models'
+import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs'
+import { useNavigate } from 'react-router-dom'
+import { registerNewUserService } from '@/services'
 
 const Register = () => {
-  const dispatch = useDispatch()
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState<boolean>()
   const [logInErrorMessage, setLogInErrorMessage] = useState<string>()
+
+  const [showPass, setShowPass] = useState(false)
+  const handleClickShowPass = () => setShowPass(!showPass)
 
   interface MyFormValues {
     name: string
     username: string
     email: string
     password: string
+    role: string
   }
 
   const initialValues: MyFormValues = {
     name: '',
     username: '',
     email: '',
-    password: ''
+    password: '',
+    role: ''
   }
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('NOMBRE OBLIGATORIO'),
     username: Yup.string().required('USUARIO OBLIGATORIO'),
     email: Yup.string().required('NOMBRE OBLIGATORIO'),
-    password: Yup.string().required('CONTRASEÑA OBLIGATORIA')
+    password: Yup.string().required('CONTRASEÑA OBLIGATORIA'),
+    role: Yup.string().required('SELECCIONA UN ROL')
   })
 
-  const onSubmit = async (data: MyFormValues) => {
+  const onSubmit = async (
+    data: MyFormValues,
+    actions: FormikHelpers<MyFormValues>
+  ) => {
     setIsSubmitting(true)
-    try {
-      const userData = await logInUserService(data)
-      dispatch(resetUser())
-      dispatch(createUser(userData))
-      setIsSubmitting(false)
-      navigate(`/${PrivateRoutes.PRIVATE}`)
-    } catch (error) {
-      setIsSubmitting(false)
-      if (error instanceof AxiosError) {
-        setLogInErrorMessage(
-          error?.response?.data?.error ||
-            'Ha ocurrido un error intentelo más tarde.'
-        )
-      } else {
-        setLogInErrorMessage('Ha ocurrido un error intentelo más tarde.')
-      }
-    }
+    registerNewUserService(data)
+      .then(() => {
+        actions.resetForm({})
+      })
+      .catch(() => {
+        setLogInErrorMessage('Ha ocurrido un error al crear el usuario.')
+      })
+    setIsSubmitting(false)
   }
 
   return (
@@ -110,7 +114,7 @@ const Register = () => {
                     formik.errors.name && formik.touched.name
                   )}>
                   <FormLabel p={0} m={0}>
-                    Tu nombre:
+                    Nombre:
                   </FormLabel>
                   <Field
                     type='string'
@@ -125,7 +129,7 @@ const Register = () => {
                     formik.errors.username && formik.touched.username
                   )}>
                   <FormLabel p={0} m={0}>
-                    Tu usuario:
+                    Usuario:
                   </FormLabel>
                   <Field
                     type='string'
@@ -140,7 +144,7 @@ const Register = () => {
                     formik.errors.email && formik.touched.email
                   )}>
                   <FormLabel p={0} m={0}>
-                    Tu correo:
+                    Correo:
                   </FormLabel>
                   <Field
                     type='string'
@@ -155,14 +159,27 @@ const Register = () => {
                     formik.errors.password && formik.touched.password
                   )}>
                   <FormLabel p={0} m={0}>
-                    Tu contraseña:
+                    Contraseña:
                   </FormLabel>
-                  <Field
-                    type='password'
-                    name='password'
-                    placeholder='Contraseña'
-                    as={Input}
-                  />
+                  <InputGroup size='md'>
+                    <Field
+                      type={showPass ? 'text' : 'password'}
+                      name='password'
+                      placeholder='Contraseña'
+                      as={Input}
+                    />
+                    <InputRightElement width='4.5rem'>
+                      <Button
+                        size={'sm'}
+                        onClick={() => {
+                          handleClickShowPass()
+                        }}>
+                        <Icon
+                          as={showPass ? BsFillEyeFill : BsFillEyeSlashFill}
+                        />
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
                   <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
                 </FormControl>
                 {logInErrorMessage ? (
@@ -177,7 +194,42 @@ const Register = () => {
                 ) : (
                   ''
                 )}
-                <Flex m={'0 auto'}>
+                <RadioGroup>
+                  <Stack direction='row'>
+                    <FormControl
+                      isInvalid={Boolean(
+                        formik.errors.role && formik.touched.role
+                      )}>
+                      <FormLabel p={0} m={0}>
+                        Rol:
+                      </FormLabel>
+                      <Flex
+                        gap={2}
+                        justifyContent={'center'}
+                        alignItems={'center'}
+                        alignContent={'center'}>
+                        <Field
+                          type='radio'
+                          name='role'
+                          as={Radio}
+                          value={Roles.REGULAR}>
+                          REGULAR
+                        </Field>
+                        <Field
+                          type='radio'
+                          name='role'
+                          as={Radio}
+                          value={Roles.ADMIN}>
+                          ADMIN
+                        </Field>
+                      </Flex>
+                      <FormErrorMessage>
+                        {formik.errors.password}
+                      </FormErrorMessage>
+                    </FormControl>
+                  </Stack>
+                </RadioGroup>
+                <Flex m={'0 auto'} gap={2}>
                   <Button
                     type='submit'
                     isLoading={isSubmitting}
@@ -188,6 +240,19 @@ const Register = () => {
                     p={6}
                     borderRadius={18}>
                     Registrar
+                  </Button>
+                  <Button
+                    type='submit'
+                    bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+                    _hover={{
+                      bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+                    }}
+                    p={6}
+                    onClick={() => {
+                      navigate(`/${PrivateRoutes.PRIVATE}`)
+                    }}
+                    borderRadius={18}>
+                    Volver
                   </Button>
                 </Flex>
               </VStack>

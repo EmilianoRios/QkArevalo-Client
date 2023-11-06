@@ -21,3 +21,9 @@ export async function authenticateUserService() {
   const userData = res?.data?.data
   return userData
 }
+
+export async function registerNewUserService(data: object) {
+  const res = await axios.post(`${BASEURL}/`, data)
+  const userData = res?.data?.data
+  return userData
+}

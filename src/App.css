@@ -6,3 +6,16 @@
 html {
   scrollbar-gutter: stable;
 }
+
+.list-of-clients::-webkit-scrollbar {
+  width: 5px;
+}
+
+.list-of-clients::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.list-of-clients::-webkit-scrollbar-thumb {
+  background: gray;
+  border-radius: 20px;
+}
