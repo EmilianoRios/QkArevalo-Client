@@ -10,13 +10,17 @@ import {
   FormErrorMessage,
   FormLabel,
   Heading,
+  Icon,
   Input,
+  InputGroup,
+  InputRightElement,
   Text,
   VStack
 } from '@chakra-ui/react'
 import { AxiosError } from 'axios'
 import { Field, Formik } from 'formik'
 import { useEffect, useState } from 'react'
+import { BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
@@ -29,6 +33,9 @@ const Login = () => {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState<boolean>()
   const [logInErrorMessage, setLogInErrorMessage] = useState<string>()
+
+  const [showPass, setShowPass] = useState(false)
+  const handleClickShowPass = () => setShowPass(!showPass)
 
   interface MyFormValues {
     username: string
@@ -133,12 +140,25 @@ const Login = () => {
                   <FormLabel p={0} m={0}>
                     Tu contraseña:
                   </FormLabel>
-                  <Field
-                    type='password'
-                    name='password'
-                    placeholder='Contraseña'
-                    as={Input}
-                  />
+                  <InputGroup size='md'>
+                    <Field
+                      type={showPass ? 'text' : 'password'}
+                      name='password'
+                      placeholder='Contraseña'
+                      as={Input}
+                    />
+                    <InputRightElement width='4.5rem'>
+                      <Button
+                        size={'sm'}
+                        onClick={() => {
+                          handleClickShowPass()
+                        }}>
+                        <Icon
+                          as={showPass ? BsFillEyeFill : BsFillEyeSlashFill}
+                        />
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
                   <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
                 </FormControl>
                 {logInErrorMessage ? (
