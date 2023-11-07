@@ -22,7 +22,7 @@ const SearchClient: React.FC<SearchClientProps> = ({
             onChange={(event) => {
               handleSearch(event)
             }}
-            placeholder='Nombre o DNI'
+            placeholder='Cliente, DNI o Usuario'
             variant='outline'
           />
         </Flex>

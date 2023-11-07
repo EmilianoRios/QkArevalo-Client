@@ -70,7 +70,12 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
             }}>
             {title}
           </Heading>
-          <Text ml={4}>{authState.name}</Text>
+          <Text ml={4}>
+            Cuenta de{' '}
+            <Text as={'b'} color={GlobalColors.EMPHASIZED}>
+              {authState.name}
+            </Text>
+          </Text>
         </Flex>
       </Flex>
       <Flex

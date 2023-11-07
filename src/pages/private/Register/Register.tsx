@@ -53,7 +53,7 @@ const Register = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('NOMBRE OBLIGATORIO'),
     username: Yup.string().required('USUARIO OBLIGATORIO'),
-    email: Yup.string().required('NOMBRE OBLIGATORIO'),
+    email: Yup.string().required('CORREO OBLIGATORIO'),
     password: Yup.string().required('CONTRASEÑA OBLIGATORIA'),
     role: Yup.string().required('SELECCIONA UN ROL')
   })

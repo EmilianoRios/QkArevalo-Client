@@ -1,14 +1,28 @@
 import { LayoutPrivate } from '@/components'
 import { ClientModelMap, GlobalColors, Roles } from '@/models'
-import { DeleteDialog, FormClient, ListOfClients, Navbar } from '@/pages'
+import {
+  DeleteDialog,
+  DeleteManyDialog,
+  FormClient,
+  ListOfClients,
+  Navbar
+} from '@/pages'
 import {
   getAllClientsForEmployeeService,
   getAllClientsService
 } from '@/services'
-import { Button, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react'
+import {
+  Button,
+  Divider,
+  Flex,
+  Icon,
+  Text,
+  useDisclosure
+} from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
+import { BsFillPersonFill, BsPeopleFill } from 'react-icons/bs'
+import { HiOutlineRefresh } from 'react-icons/hi'
 import { useSelector } from 'react-redux'
-import { DeleteManyDialog } from '@/pages'
 import { io } from 'socket.io-client'
 
 const socket = io(import.meta.env.VITE_DOMAIN)
@@ -143,7 +157,7 @@ function Main() {
         fetchClients={fetchClients}
       />
       <Navbar
-        title={'Mis Clientes'}
+        title={switchList ? 'Todos Los Clientes' : 'Mis Clientes'}
         fetchClients={fetchClients}
         onOpenDeleteManyDialog={onOpenDeleteManyDialog}
       />
@@ -185,12 +199,25 @@ function Main() {
                 handleSwitchList()
               }}>
               <Text
+                display={'flex'}
+                gap={1}
+                alignItems={'center'}
                 fontSize={{
                   base: '0.8rem',
                   md: '0.8rem',
                   lg: '0.9rem'
                 }}>
-                {switchList ? 'Mis Clientes' : 'Todos los Clientes'}
+                {switchList ? (
+                  <>
+                    Ir a Mis Clientes
+                    <Icon as={BsFillPersonFill} />
+                  </>
+                ) : (
+                  <>
+                    Ir a Todos los Clientes
+                    <Icon as={BsPeopleFill} />
+                  </>
+                )}
               </Text>
             </Button>
           )}
@@ -207,12 +234,16 @@ function Main() {
               fetchClients()
             }}>
             <Text
+              display={'flex'}
+              gap={1}
+              alignItems={'center'}
               fontSize={{
                 base: '0.8rem',
                 md: '0.8rem',
                 lg: '0.9rem'
               }}>
               Actualizar Lista
+              <Icon as={HiOutlineRefresh} />
             </Text>
           </Button>
         </Flex>

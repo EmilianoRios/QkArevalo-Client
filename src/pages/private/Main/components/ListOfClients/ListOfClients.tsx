@@ -61,7 +61,8 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
   return (
     <>
       <Flex
-        h={'60vh'}
+        h={'49vh'}
+        pt={listOfClients.length === 5 ? '60px' : 'unset'}
         overflow={'auto'}
         flexDirection={'column'}
         gap={2}

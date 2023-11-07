@@ -7,12 +7,14 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Icon,
   Input,
   Text,
   VStack
 } from '@chakra-ui/react'
 import { Field, Formik, FormikHelpers } from 'formik'
 import React, { useState } from 'react'
+import { HiUpload } from 'react-icons/hi'
 import { useSelector } from 'react-redux'
 import { Socket } from 'socket.io-client'
 import * as Yup from 'yup'
@@ -148,12 +150,15 @@ const FormClient: React.FC<FormClientProps> = ({ socket }) => {
                     w={'auto'}
                     borderRadius={18}>
                     <Text
+                      display={'flex'}
+                      gap={1}
+                      alignItems={'center'}
                       fontSize={{
                         base: '0.8rem',
                         md: '0.8rem',
                         lg: '0.9rem'
                       }}>
-                      Cargar
+                      Cargar <Icon as={HiUpload} />
                     </Text>
                   </Button>
                 </Flex>
