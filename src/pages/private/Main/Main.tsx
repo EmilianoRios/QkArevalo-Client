@@ -1,5 +1,5 @@
 import { LayoutPrivate } from '@/components'
-import { ClientModelMap, GlobalColors } from '@/models'
+import { ClientModelMap, GlobalColors, Roles } from '@/models'
 import { DeleteDialog, FormClient, ListOfClients, Navbar } from '@/pages'
 import {
   getAllClientsForEmployeeService,
@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux'
 import { DeleteManyDialog } from '@/pages'
 import { io } from 'socket.io-client'
 
-const socket = io(import.meta.env.VITE_DOMAIN)
+const socket = io('http://localhost:8000/')
 
 function Main() {
   const authState = useSelector(
@@ -51,7 +51,7 @@ function Main() {
   }
 
   const fetchClients = useCallback(async () => {
-    if (authState.role === 'ADMIN') {
+    if (authState.role === Roles.ADMIN) {
       setIsLoadingListButton(true)
       const [myClients, allClients] = await Promise.all([
         getAllClientsForEmployeeService(authState.id),
@@ -60,7 +60,7 @@ function Main() {
 
       setMyListOfClients(myClients)
       setListOfClients(allClients)
-    } else if (authState.role === 'REGULAR') {
+    } else if (authState.role === Roles.REGULAR) {
       getAllClientsForEmployeeService(authState.id).then((res) => {
         setMyListOfClients(res)
       })
@@ -88,11 +88,17 @@ function Main() {
 
   useEffect(() => {
     socket.on('server:updateListOfClients', (data) => {
+      if (authState.role === Roles.ADMIN) {
+        const indexListOfClients = listOfClients.findIndex(
+          (client) => client.id === data.id
+        )
+        indexListOfClients !== -1
+          ? setListOfClients(
+              updateListOfClients(indexListOfClients, data, listOfClients)
+            )
+          : setListOfClients((oldList) => [data, ...oldList])
+      }
       const indexMyListOfClients = myListOfClients.findIndex(
-        (client) => client.id === data.id
-      )
-
-      const indexListOfClients = listOfClients.findIndex(
         (client) => client.id === data.id
       )
 
@@ -101,12 +107,6 @@ function Main() {
             updateListOfClients(indexMyListOfClients, data, myListOfClients)
           )
         : setMyListOfClients((oldList) => [data, ...oldList])
-
-      indexListOfClients !== -1
-        ? setListOfClients(
-            updateListOfClients(indexListOfClients, data, listOfClients)
-          )
-        : setListOfClients((oldList) => [data, ...oldList])
     })
 
     socket.on('server:deleteOneClientOfLists', (id) => {
@@ -126,7 +126,7 @@ function Main() {
       socket.off('server:updateListOfClients')
       socket.off('server:deleteOneClientOfLists')
     }
-  }, [myListOfClients, listOfClients])
+  }, [myListOfClients, listOfClients, authState.role])
 
   return (
     <LayoutPrivate>
@@ -155,7 +155,6 @@ function Main() {
             viewClientPerUser={true}
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
-            fetchClients={fetchClients}
             socket={socket}
           />
         ) : (
@@ -164,7 +163,6 @@ function Main() {
             viewClientPerUser={false}
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
-            fetchClients={fetchClients}
             socket={socket}
           />
         )}
@@ -173,7 +171,7 @@ function Main() {
           justifyContent={'center'}
           alignItems={'center'}
           m={'0 auto'}>
-          {authState.role === 'ADMIN' && (
+          {authState.role === Roles.ADMIN && (
             <Button
               isLoading={isLoadingListButton}
               bgGradient={GlobalColors.SENDMESSAGEBUTTON}

@@ -1,16 +1,15 @@
 import { ClientModelMap, GlobalColors } from '@/models'
 import { MenuClient, SearchClient } from '@/pages'
 import { Card, Divider, Flex, Heading, Text, VStack } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 
 interface ListOfClientsProps {
   listOfClients: ClientModelMap[]
   viewClientPerUser: boolean
   onOpenDeleteDialog: () => void
-  fetchClients: () => void
-  socket: Socket
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
+  socket: Socket
 }
 
 const ListOfClients: React.FC<ListOfClientsProps> = ({
@@ -36,23 +35,26 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
     return GlobalColors.BGRADIENTDEFAULT
   }
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchText = e.target.value
-    setSearchTerm(searchText)
+  const handleSearch = useCallback(
+    (searchText: string) => {
+      setSearchTerm(searchText)
 
-    const filteredItems = listOfClients.filter(
-      (item: ClientModelMap) =>
-        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.dni?.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.employee?.name?.toLowerCase().includes(searchText.toLowerCase())
-    )
+      const filteredItems = listOfClients.filter(
+        (item: ClientModelMap) =>
+          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.dni?.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.employee?.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
 
-    setListOfClientsFiltered(filteredItems)
-  }
+      setListOfClientsFiltered(filteredItems)
+    },
+    [listOfClients]
+  )
 
   useEffect(() => {
     setListOfClientsFiltered(listOfClients)
-  }, [listOfClients])
+    handleSearch(searchTerm)
+  }, [listOfClients, handleSearch, searchTerm])
 
   /* let numberOfClients = (listOfClients && listOfClients.length) || 0 */
 
@@ -121,7 +123,10 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
         )}
       </Flex>
       <Divider my={4} />
-      <SearchClient searchTerm={searchTerm} handleSearch={handleSearch} />
+      <SearchClient
+        searchTerm={searchTerm}
+        handleSearch={(e) => handleSearch(e.target.value)}
+      />
     </>
   )
 }
