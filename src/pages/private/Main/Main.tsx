@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux'
 import { DeleteManyDialog } from '@/pages'
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:8000/')
+const socket = io(import.meta.env.VITE_DOMAIN)
 
 function Main() {
   const authState = useSelector(
