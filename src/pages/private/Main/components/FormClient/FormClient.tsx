@@ -1,4 +1,4 @@
-import { GlobalColors } from '@/models'
+import { ClientModelMap, GlobalColors } from '@/models'
 import { createNewClientService } from '@/services'
 import { formatDNI } from '@/utils'
 import {
@@ -14,13 +14,14 @@ import {
 import { Field, Formik, FormikHelpers } from 'formik'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
+import { Socket } from 'socket.io-client'
 import * as Yup from 'yup'
 
 interface FormClientProps {
-  fetchClients: () => void
+  socket: Socket
 }
 
-const FormClient: React.FC<FormClientProps> = ({ fetchClients }) => {
+const FormClient: React.FC<FormClientProps> = ({ socket }) => {
   const authState = useSelector(
     (state: { user: { id: string; name: string } }) => state.user
   )
@@ -46,8 +47,8 @@ const FormClient: React.FC<FormClientProps> = ({ fetchClients }) => {
       dni: cleanDNI,
       employeeId: authState.id
     })
-      .then(() => {
-        fetchClients()
+      .then((res: ClientModelMap) => {
+        socket.emit('client:updateListOfClients', res)
       })
       .catch((err) => {
         handleClientErrorForm(err)

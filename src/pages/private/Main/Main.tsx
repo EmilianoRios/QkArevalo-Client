@@ -9,6 +9,9 @@ import { Button, Divider, Flex, Text, useDisclosure } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { DeleteManyDialog } from '@/pages'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:8000/')
 
 function Main() {
   const authState = useSelector(
@@ -69,6 +72,62 @@ function Main() {
     fetchClients()
   }, [fetchClients])
 
+  const updateListOfClients = (
+    index: number,
+    data: ClientModelMap,
+    listOfClients: ClientModelMap[]
+  ) => {
+    const newListOfClients = [...listOfClients]
+    newListOfClients[index] = {
+      ...newListOfClients[index],
+      status: data.status
+    }
+
+    return newListOfClients
+  }
+
+  useEffect(() => {
+    socket.on('server:updateListOfClients', (data) => {
+      const indexMyListOfClients = myListOfClients.findIndex(
+        (client) => client.id === data.id
+      )
+
+      const indexListOfClients = listOfClients.findIndex(
+        (client) => client.id === data.id
+      )
+
+      indexMyListOfClients !== -1
+        ? setMyListOfClients(
+            updateListOfClients(indexMyListOfClients, data, myListOfClients)
+          )
+        : setMyListOfClients((oldList) => [data, ...oldList])
+
+      indexListOfClients !== -1
+        ? setListOfClients(
+            updateListOfClients(indexListOfClients, data, listOfClients)
+          )
+        : setListOfClients((oldList) => [data, ...oldList])
+    })
+
+    socket.on('server:deleteOneClientOfLists', (id) => {
+      const newMyListOfClients = myListOfClients.filter(
+        (elemento) => elemento.id !== id
+      )
+
+      const newListOfClients = listOfClients.filter(
+        (elemento) => elemento.id !== id
+      )
+
+      setMyListOfClients(newMyListOfClients)
+      setListOfClients(newListOfClients)
+    })
+
+    return () => {
+      socket.off('server:updateListOfClients')
+      socket.off('server:deleteOneClientOfLists')
+    }
+  }, [myListOfClients, listOfClients])
+
   return (
     <LayoutPrivate>
       <DeleteDialog
@@ -76,7 +135,7 @@ function Main() {
         onClose={onCloseDeleteDialog}
         clientToDelete={clientToDelete}
         setClientToDelete={setClientToDelete}
-        fetchClients={fetchClients}
+        socket={socket}
       />
       <DeleteManyDialog
         isOpen={isOpenDeleteManyDialog}
@@ -84,7 +143,7 @@ function Main() {
         fetchClients={fetchClients}
       />
       <Navbar
-        title='Mis Clientes'
+        title={'Mis Clientes'}
         fetchClients={fetchClients}
         onOpenDeleteManyDialog={onOpenDeleteManyDialog}
       />
@@ -97,6 +156,7 @@ function Main() {
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
             fetchClients={fetchClients}
+            socket={socket}
           />
         ) : (
           <ListOfClients
@@ -105,6 +165,7 @@ function Main() {
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
             fetchClients={fetchClients}
+            socket={socket}
           />
         )}
         <Flex
@@ -158,7 +219,7 @@ function Main() {
           </Button>
         </Flex>
         <Divider my={4} />
-        <FormClient fetchClients={fetchClients} />
+        <FormClient socket={socket} />
       </Flex>
     </LayoutPrivate>
   )

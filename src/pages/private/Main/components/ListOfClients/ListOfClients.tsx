@@ -1,13 +1,15 @@
 import { ClientModelMap, GlobalColors } from '@/models'
-import { Flex, Card, Heading, VStack, Text, Divider } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
 import { MenuClient, SearchClient } from '@/pages'
+import { Card, Divider, Flex, Heading, Text, VStack } from '@chakra-ui/react'
+import React, { useEffect, useState } from 'react'
+import { Socket } from 'socket.io-client'
 
 interface ListOfClientsProps {
   listOfClients: ClientModelMap[]
   viewClientPerUser: boolean
   onOpenDeleteDialog: () => void
   fetchClients: () => void
+  socket: Socket
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
 }
 
@@ -15,8 +17,8 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
   listOfClients,
   viewClientPerUser,
   onOpenDeleteDialog,
-  fetchClients,
-  setClientToDelete
+  setClientToDelete,
+  socket
 }) => {
   const [listOfClientsFiltered, setListOfClientsFiltered] =
     useState<ClientModelMap[]>()
@@ -105,7 +107,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
                       onOpenDeleteDialog={onOpenDeleteDialog}
                       client={client}
                       setClientToDelete={setClientToDelete}
-                      fetchClients={fetchClients}
+                      socket={socket}
                     />
                   </Flex>
                 </Flex>

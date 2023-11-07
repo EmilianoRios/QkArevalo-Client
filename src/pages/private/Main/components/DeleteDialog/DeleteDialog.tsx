@@ -12,11 +12,12 @@ import {
   Text
 } from '@chakra-ui/react'
 import React from 'react'
+import { Socket } from 'socket.io-client'
 
 interface DeleteDialogProps {
   isOpen: boolean
   onClose: () => void
-  fetchClients: () => void
+  socket: Socket
   clientToDelete: ClientModelMap
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
 }
@@ -25,7 +26,7 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({
   isOpen,
   onClose,
   clientToDelete,
-  fetchClients,
+  socket,
   setClientToDelete
 }) => {
   const deleteOneClient = () => {
@@ -37,8 +38,9 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({
         status: ''
       }
       deleteOneClientService(clientToDelete.id).then(() => {
+        socket.emit('client:deleteOneClientOfLists', clientToDelete.id)
         setClientToDelete(ClientReset)
-        fetchClients()
+        /* fetchClients() */
       })
       onClose()
     } catch {

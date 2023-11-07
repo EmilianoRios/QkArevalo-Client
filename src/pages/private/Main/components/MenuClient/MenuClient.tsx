@@ -1,38 +1,44 @@
 import { ClientModelMap, GlobalColors, StatusClient } from '@/models'
 import { updateOneClientService } from '@/services'
 import {
+  Flex,
+  Icon,
+  IconButton,
   Menu,
   MenuButton,
-  IconButton,
+  MenuDivider,
+  MenuItem,
   MenuList,
   MenuOptionGroup,
-  Flex,
-  MenuItem,
-  MenuDivider,
-  Text,
-  Icon
+  Text
 } from '@chakra-ui/react'
 import React from 'react'
-import { CiMenuKebab } from 'react-icons/ci'
 import { BsFillTrashFill } from 'react-icons/bs'
+import { CiMenuKebab } from 'react-icons/ci'
+import { Socket } from 'socket.io-client'
 
 interface MenuClientProps {
   onOpenDeleteDialog: () => void
   client: ClientModelMap
-  fetchClients: () => void
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
+  socket: Socket
 }
 
 const MenuClient: React.FC<MenuClientProps> = ({
   onOpenDeleteDialog,
   client,
   setClientToDelete,
-  fetchClients
+  socket
 }) => {
   const updateOneClient = (clientId: string, status: string) => {
-    updateOneClientService({ clientId, status }).then(() => {
-      fetchClients()
+    updateOneClientService({ clientId, status }).then((res) => {
+      socket.emit('client:updateListOfClients', res)
     })
+  }
+
+  const deleteOneClient = () => {
+    setClientToDelete(client)
+    onOpenDeleteDialog()
   }
 
   return (
@@ -88,8 +94,7 @@ const MenuClient: React.FC<MenuClientProps> = ({
                 borderRadius={4}
                 bgGradient={GlobalColors.WARNINGCOLOR}
                 onClick={() => {
-                  setClientToDelete(client)
-                  onOpenDeleteDialog()
+                  deleteOneClient()
                 }}>
                 <Text display={'flex'} gap={1} alignItems={'center'}>
                   Eliminar <Icon as={BsFillTrashFill} />

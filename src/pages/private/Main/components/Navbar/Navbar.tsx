@@ -20,10 +20,10 @@ import {
 } from '@chakra-ui/react'
 import React from 'react'
 import { BiMenu } from 'react-icons/bi'
-import { useSelector } from 'react-redux'
-import { IoReload } from 'react-icons/io5'
 import { BsFillTrashFill } from 'react-icons/bs'
+import { IoReload } from 'react-icons/io5'
 import { TiUserAdd } from 'react-icons/ti'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 interface NavbarPrivateProps {
@@ -49,6 +49,7 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
       status: StatusClient.DEFAULT
     }).then(() => {
       fetchClients()
+      /* socket.emit('client:resetStatusMyClients', res) */
     })
   }
 
