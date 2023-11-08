@@ -11,7 +11,7 @@ const LayoutPrivate: React.FC<LayoutPrivateProps> = ({ children }) => {
     <>
       <Box
         bg={'#181818'}
-        h={'50px'}
+        h={'16px'}
         position={'relative'}
         left={0}
         top={0}
