@@ -62,8 +62,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
     <>
       <VStack
         gap={2}
-        h={'auto'}
-        maxH={'49vh'}
+        h={'49vh'}
         overflowY={'scroll'}
         className={'list-of-clients'}>
         {listOfClientsFiltered &&

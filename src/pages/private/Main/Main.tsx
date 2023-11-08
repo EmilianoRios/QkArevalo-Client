@@ -133,7 +133,7 @@ function Main() {
         setListOfClients(newListOfClients)
       }
       const newMyListOfClients = myListOfClients.filter(
-        (client) => client.id !== id && client.employee?.id !== authState.id
+        (client) => client.id !== id
       )
 
       setMyListOfClients(newMyListOfClients)
