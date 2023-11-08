@@ -65,8 +65,8 @@ function Main() {
   }
 
   const fetchClients = useCallback(async () => {
+    setIsLoadingListButton(true)
     if (authState.role === Roles.ADMIN) {
-      setIsLoadingListButton(true)
       const [myClients, allClients] = await Promise.all([
         getAllClientsForEmployeeService(authState.id),
         getAllClientsService()
@@ -75,7 +75,7 @@ function Main() {
       setMyListOfClients(myClients)
       setListOfClients(allClients)
     } else if (authState.role === Roles.REGULAR) {
-      getAllClientsForEmployeeService(authState.id).then((res) => {
+      await getAllClientsForEmployeeService(authState.id).then((res) => {
         setMyListOfClients(res)
       })
     }
@@ -112,35 +112,38 @@ function Main() {
             )
           : setListOfClients((oldList) => [data, ...oldList])
       }
-      const indexMyListOfClients = myListOfClients.findIndex(
-        (client) => client.id === data.id
-      )
+      if (data?.employee.id === authState.id) {
+        const indexMyListOfClients = myListOfClients.findIndex(
+          (client) => client.id === data.id
+        )
 
-      indexMyListOfClients !== -1
-        ? setMyListOfClients(
-            updateListOfClients(indexMyListOfClients, data, myListOfClients)
-          )
-        : setMyListOfClients((oldList) => [data, ...oldList])
+        indexMyListOfClients !== -1
+          ? setMyListOfClients(
+              updateListOfClients(indexMyListOfClients, data, myListOfClients)
+            )
+          : setMyListOfClients((oldList) => [data, ...oldList])
+      }
     })
 
     socket.on('server:deleteOneClientOfLists', (id) => {
+      if (authState.role === Roles.ADMIN) {
+        const newListOfClients = listOfClients.filter(
+          (client) => client.id !== id
+        )
+        setListOfClients(newListOfClients)
+      }
       const newMyListOfClients = myListOfClients.filter(
-        (elemento) => elemento.id !== id
-      )
-
-      const newListOfClients = listOfClients.filter(
-        (elemento) => elemento.id !== id
+        (client) => client.id !== id && client.employee?.id !== authState.id
       )
 
       setMyListOfClients(newMyListOfClients)
-      setListOfClients(newListOfClients)
     })
 
     return () => {
       socket.off('server:updateListOfClients')
       socket.off('server:deleteOneClientOfLists')
     }
-  }, [myListOfClients, listOfClients, authState.role])
+  }, [myListOfClients, listOfClients, authState.role, authState.id])
 
   return (
     <LayoutPrivate>

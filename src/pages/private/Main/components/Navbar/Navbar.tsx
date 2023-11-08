@@ -54,7 +54,15 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
   }
 
   return (
-    <Flex justifyContent='space-between' w='100%' transition='0.2s'>
+    <Flex
+      justifyContent='space-between'
+      w='100%'
+      transition='0.2s'
+      bg={GlobalColors.BGCONTENT}
+      position={'relative'}
+      borderTop={'1px solid'}
+      borderColor={GlobalColors.BORDERCONTENT}
+      zIndex={50000}>
       <Flex justifyContent={'center'} alignItems={'center'}>
         <Flex flexDirection={'column'}>
           <Heading

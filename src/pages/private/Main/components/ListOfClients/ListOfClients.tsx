@@ -60,17 +60,17 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
 
   return (
     <>
-      <Flex
-        h={'49vh'}
-        pt={listOfClients.length === 5 ? '60px' : 'unset'}
-        overflow={'auto'}
-        flexDirection={'column'}
+      <VStack
         gap={2}
+        h={'auto'}
+        maxH={'49vh'}
+        overflowY={'scroll'}
         className={'list-of-clients'}>
         {listOfClientsFiltered &&
           listOfClientsFiltered.map((client: ClientModelMap, index, array) => {
             return (
               <Card
+                w={'100%'}
                 key={client.id}
                 p={2}
                 bgGradient={`linear(to-tr, ${
@@ -105,14 +105,12 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
                       )}
                     </Flex>
                   </Flex>
-                  <Flex>
-                    <MenuClient
-                      onOpenDeleteDialog={onOpenDeleteDialog}
-                      client={client}
-                      setClientToDelete={setClientToDelete}
-                      socket={socket}
-                    />
-                  </Flex>
+                  <MenuClient
+                    onOpenDeleteDialog={onOpenDeleteDialog}
+                    client={client}
+                    setClientToDelete={setClientToDelete}
+                    socket={socket}
+                  />
                 </Flex>
               </Card>
             )
@@ -122,7 +120,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
             <Text>{'No tienes ningún cliente!.'}</Text>
           </VStack>
         )}
-      </Flex>
+      </VStack>
       <Divider my={4} />
       <SearchClient
         searchTerm={searchTerm}

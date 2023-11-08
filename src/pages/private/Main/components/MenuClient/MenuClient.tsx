@@ -1,18 +1,23 @@
 import { ClientModelMap, GlobalColors, StatusClient } from '@/models'
 import { updateOneClientService } from '@/services'
 import {
+  Box,
+  Button,
   Flex,
   Icon,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  MenuOptionGroup,
-  Text
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTrigger,
+  Portal,
+  Text,
+  useDisclosure
 } from '@chakra-ui/react'
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { BsFillTrashFill } from 'react-icons/bs'
 import { CiMenuKebab } from 'react-icons/ci'
 import { Socket } from 'socket.io-client'
@@ -30,9 +35,16 @@ const MenuClient: React.FC<MenuClientProps> = ({
   setClientToDelete,
   socket
 }) => {
+  const firstFieldRef = useRef(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const { onOpen, onClose, isOpen } = useDisclosure()
+
   const updateOneClient = (clientId: string, status: string) => {
+    setIsLoading(true)
     updateOneClientService({ clientId, status }).then((res) => {
       socket.emit('client:updateListOfClients', res)
+      setIsLoading(false)
+      onClose()
     })
   }
 
@@ -43,67 +55,91 @@ const MenuClient: React.FC<MenuClientProps> = ({
 
   return (
     <>
-      <Menu>
-        <MenuButton
-          as={IconButton}
-          icon={<CiMenuKebab />}
-          aria-label='Options'
-          variant='outline'
-        />
-        <MenuList bg={GlobalColors.BORDERCONTENT} gap={4}>
-          <MenuOptionGroup title='Estados'>
-            <Flex flexDirection={'column'} gap={2} m={2}>
-              <MenuItem
-                borderRadius={4}
-                bg={GlobalColors.BGRADIENTPAID}
-                onClick={() => {
-                  updateOneClient(client.id, StatusClient.PAID)
-                }}>
-                Pagado
-              </MenuItem>
-              <MenuItem
-                borderRadius={4}
-                bg={GlobalColors.BGRADIENTPENDING}
-                onClick={() => {
-                  updateOneClient(client.id, StatusClient.PENDING)
-                }}>
-                Pendiente
-              </MenuItem>
-              <MenuItem
-                borderRadius={4}
-                bg={GlobalColors.BGRADIENTCANCELLED}
-                onClick={() => {
-                  updateOneClient(client.id, StatusClient.CANCELLED)
-                }}>
-                Cancelado
-              </MenuItem>
-              <MenuItem
-                borderRadius={4}
-                bg={GlobalColors.BGRADIENTDEFAULT}
-                onClick={() => {
-                  updateOneClient(client.id, 'DEFAULT')
-                }}>
-                Por Defecto
-              </MenuItem>
-            </Flex>
-          </MenuOptionGroup>
-          <MenuDivider />
-          <MenuOptionGroup title='Zona de Riesgo'>
-            <Flex m={2}>
-              <MenuItem
-                borderRadius={4}
-                bgGradient={GlobalColors.WARNINGCOLOR}
-                onClick={() => {
-                  deleteOneClient()
-                }}>
-                <Text display={'flex'} gap={1} alignItems={'center'}>
-                  Eliminar <Icon as={BsFillTrashFill} />
-                </Text>
-              </MenuItem>
-            </Flex>
-          </MenuOptionGroup>
-        </MenuList>
-      </Menu>
+      <Popover
+        placement={'bottom-end'}
+        closeOnBlur={true}
+        isOpen={isOpen}
+        initialFocusRef={firstFieldRef}
+        onOpen={onOpen}
+        onClose={onClose}
+        flip>
+        <PopoverTrigger>
+          <Button
+            as={IconButton}
+            icon={<CiMenuKebab />}
+            aria-label='Options-Client'
+            variant='outline'
+          />
+        </PopoverTrigger>
+        <Portal>
+          <PopoverContent bg={GlobalColors.BORDERCONTENT}>
+            <PopoverArrow bg={GlobalColors.BORDERCONTENT} />
+            <PopoverHeader>Opciones</PopoverHeader>
+            <PopoverBody>
+              <Flex flexDirection={'column'} gap={2}>
+                <Button
+                  isLoading={isLoading}
+                  size={'sm'}
+                  borderRadius={4}
+                  bg={GlobalColors.BGRADIENTPAID}
+                  onClick={() => {
+                    updateOneClient(client.id, StatusClient.PAID)
+                  }}>
+                  Pagado
+                </Button>
+                <Button
+                  isLoading={isLoading}
+                  size={'sm'}
+                  borderRadius={4}
+                  bg={GlobalColors.BGRADIENTPENDING}
+                  onClick={() => {
+                    updateOneClient(client.id, StatusClient.PENDING)
+                  }}>
+                  Pendiente
+                </Button>
+                <Button
+                  isLoading={isLoading}
+                  size={'sm'}
+                  borderRadius={4}
+                  bg={GlobalColors.BGRADIENTCANCELLED}
+                  onClick={() => {
+                    updateOneClient(client.id, StatusClient.CANCELLED)
+                  }}>
+                  Cancelado
+                </Button>
+                <Button
+                  isLoading={isLoading}
+                  size={'sm'}
+                  borderRadius={4}
+                  bg={GlobalColors.BGRADIENTDEFAULT}
+                  onClick={() => {
+                    updateOneClient(client.id, StatusClient.DEFAULT)
+                  }}>
+                  Por Defecto
+                </Button>
+              </Flex>
+            </PopoverBody>
+            <PopoverFooter w={'100%'}>
+              <Box pb={2}>Zona de Riesgo</Box>
+              <Flex>
+                <Button
+                  isLoading={isLoading}
+                  size={'sm'}
+                  w={'100%'}
+                  borderRadius={4}
+                  bgGradient={GlobalColors.WARNINGCOLOR}
+                  onClick={() => {
+                    deleteOneClient()
+                  }}>
+                  <Text display={'flex'} gap={1} alignItems={'center'}>
+                    Eliminar <Icon as={BsFillTrashFill} />
+                  </Text>
+                </Button>
+              </Flex>
+            </PopoverFooter>
+          </PopoverContent>
+        </Portal>
+      </Popover>
     </>
   )
 }

@@ -1,5 +1,5 @@
 import { GlobalColors } from '@/models'
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import React from 'react'
 
 interface LayoutPrivateProps {
@@ -8,24 +8,34 @@ interface LayoutPrivateProps {
 
 const LayoutPrivate: React.FC<LayoutPrivateProps> = ({ children }) => {
   return (
-    <Flex
-      flexDirection={'column'}
-      justifyContent={'center'}
-      alignContent={'center'}
-      alignItems={'center'}
-      pt={4}>
+    <>
+      <Box
+        bg={'#181818'}
+        h={'50px'}
+        position={'relative'}
+        left={0}
+        top={0}
+        zIndex={50000}></Box>
       <Flex
-        display={'column'}
-        border='1px solid'
-        bg={GlobalColors.BGCONTENT}
-        rounded={20}
-        h={'auto'}
-        overflow={'hidden'}
-        borderColor={GlobalColors.BORDERCONTENT}
-        w={{ base: '100%', md: '70%', lg: '600px' }}>
-        {children}
+        flexDirection={'column'}
+        justifyContent={'center'}
+        alignContent={'center'}
+        alignItems={'center'}>
+        <Flex
+          display={'column'}
+          bg={GlobalColors.BGCONTENT}
+          rounded={30}
+          h={'auto'}
+          overflow={'hidden'}
+          borderBottom={'1px solid'}
+          borderRight={'1px solid'}
+          borderLeft={'1px solid'}
+          borderColor={GlobalColors.BORDERCONTENT}
+          w={{ base: '100%', md: '70%', lg: '600px' }}>
+          {children}
+        </Flex>
       </Flex>
-    </Flex>
+    </>
   )
 }
 
