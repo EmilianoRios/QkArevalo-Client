@@ -1,6 +1,6 @@
 import { ClientModelMap } from '@/models'
 
-export const reducerClients = (state, action) => {
+export const reducerClients = (state: any, action: any) => {
   switch (action.type) {
     case 'FETCH_SUCCESS': {
       return action.payload
