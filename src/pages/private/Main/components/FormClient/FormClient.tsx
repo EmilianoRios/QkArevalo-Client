@@ -1,4 +1,4 @@
-import { ClientModelMap, GlobalColors } from '@/models'
+import { GlobalColors } from '@/models'
 import { createNewClientService } from '@/services'
 import { formatDNI } from '@/utils'
 import {
@@ -49,8 +49,11 @@ const FormClient: React.FC<FormClientProps> = ({ socket }) => {
       dni: cleanDNI,
       employeeId: authState.id
     })
-      .then((res: ClientModelMap) => {
-        socket.emit('client:updateListOfClients', res)
+      .then((res) => {
+        socket.emit('client:addOneClient', {
+          data: res,
+          employeeId: res.employee.id
+        })
       })
       .catch((err) => {
         handleClientErrorForm(err)

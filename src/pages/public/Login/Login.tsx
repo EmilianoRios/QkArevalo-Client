@@ -181,7 +181,7 @@ const Login = () => {
                     _hover={{
                       bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
                     }}
-                    p={6}
+                    p={4}
                     borderRadius={18}>
                     Ingresar
                   </Button>

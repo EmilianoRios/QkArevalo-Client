@@ -3,6 +3,7 @@ export const PublicRoutes = {
 }
 
 export const PrivateRoutes = {
+  LISTOFUSERS: 'users',
   REGISTER: 'register',
   PRIVATE: 'dashboard',
   ME: 'me'

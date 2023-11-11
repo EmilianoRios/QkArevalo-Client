@@ -4,6 +4,12 @@ import axios from 'axios'
 
 const BASEURL = import.meta.env.VITE_DOMAIN + '/api/v1/users'
 
+export async function getAllUsersService() {
+  const res = await axios.get(`${BASEURL}/`)
+  const userData = res?.data?.data
+  return userData
+}
+
 export async function logInUserService(data: UserLogInInfo) {
   const res = await axios.post(`${BASEURL}/login`, data)
   const userData = res?.data?.data

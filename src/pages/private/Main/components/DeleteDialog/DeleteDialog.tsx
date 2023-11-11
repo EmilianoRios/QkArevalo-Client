@@ -31,16 +31,19 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({
 }) => {
   const deleteOneClient = () => {
     try {
-      const ClientReset = {
+      const ClientReset: ClientModelMap = {
         id: '',
         name: '',
         dni: '',
-        status: ''
+        status: '',
+        employee: { id: '', name: '' }
       }
       deleteOneClientService(clientToDelete.id).then(() => {
-        socket.emit('client:deleteOneClientOfLists', clientToDelete.id)
+        socket.emit('client:deleteOneClientOfLists', {
+          data: clientToDelete.id,
+          employeeId: clientToDelete.employee && clientToDelete.employee.id
+        })
         setClientToDelete(ClientReset)
-        /* fetchClients() */
       })
       onClose()
     } catch {

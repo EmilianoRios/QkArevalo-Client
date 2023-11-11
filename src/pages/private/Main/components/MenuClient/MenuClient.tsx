@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 import { BsFillTrashFill } from 'react-icons/bs'
-import { CiMenuKebab } from 'react-icons/ci'
+import { SlOptionsVertical } from 'react-icons/sl'
 import { Socket } from 'socket.io-client'
 
 interface MenuClientProps {
@@ -42,14 +42,17 @@ const MenuClient: React.FC<MenuClientProps> = ({
   const updateOneClient = (clientId: string, status: string) => {
     setIsLoading(true)
     updateOneClientService({ clientId, status }).then((res) => {
-      socket.emit('client:updateListOfClients', res)
+      socket.emit('client:updateListOfClients', {
+        data: [res],
+        employeeId: res.employee.id
+      })
       setIsLoading(false)
       onClose()
     })
   }
 
-  const deleteOneClient = () => {
-    setClientToDelete(client)
+  const deleteOneClient = (clientData: ClientModelMap) => {
+    setClientToDelete(clientData)
     onOpenDeleteDialog()
   }
 
@@ -65,10 +68,13 @@ const MenuClient: React.FC<MenuClientProps> = ({
         flip>
         <PopoverTrigger>
           <Button
+            bg={GlobalColors.BGCONTENT}
+            _hover={{ bg: GlobalColors.BGCONTENT }}
+            rounded={'0px 4px 4px 0px'}
+            h={'100%'}
             as={IconButton}
-            icon={<CiMenuKebab />}
+            icon={<SlOptionsVertical />}
             aria-label='Options-Client'
-            variant='outline'
           />
         </PopoverTrigger>
         <Portal>
@@ -85,7 +91,9 @@ const MenuClient: React.FC<MenuClientProps> = ({
                   onClick={() => {
                     updateOneClient(client.id, StatusClient.PAID)
                   }}>
-                  Pagado
+                  <Text textShadow={'2px 2px 3px rgba(0, 0, 0, 0.9)'}>
+                    Pagado
+                  </Text>
                 </Button>
                 <Button
                   isLoading={isLoading}
@@ -95,7 +103,9 @@ const MenuClient: React.FC<MenuClientProps> = ({
                   onClick={() => {
                     updateOneClient(client.id, StatusClient.PENDING)
                   }}>
-                  Pendiente
+                  <Text textShadow={'2px 2px 3px rgba(0, 0, 0, 0.9)'}>
+                    Pendiente
+                  </Text>
                 </Button>
                 <Button
                   isLoading={isLoading}
@@ -105,7 +115,9 @@ const MenuClient: React.FC<MenuClientProps> = ({
                   onClick={() => {
                     updateOneClient(client.id, StatusClient.CANCELLED)
                   }}>
-                  Cancelado
+                  <Text textShadow={'2px 2px 3px rgba(0, 0, 0, 0.9)'}>
+                    Cancelado
+                  </Text>
                 </Button>
                 <Button
                   isLoading={isLoading}
@@ -129,7 +141,7 @@ const MenuClient: React.FC<MenuClientProps> = ({
                   borderRadius={4}
                   bgGradient={GlobalColors.WARNINGCOLOR}
                   onClick={() => {
-                    deleteOneClient()
+                    deleteOneClient(client)
                   }}>
                   <Text display={'flex'} gap={1} alignItems={'center'}>
                     Eliminar <Icon as={BsFillTrashFill} />

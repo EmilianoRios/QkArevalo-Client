@@ -11,6 +11,7 @@ import {
   getAllClientsForEmployeeService,
   getAllClientsService
 } from '@/services'
+import { reducerClients } from '@/utils'
 import {
   Button,
   Divider,
@@ -19,7 +20,7 @@ import {
   Text,
   useDisclosure
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import { BsFillPersonFill, BsPeopleFill } from 'react-icons/bs'
 import { HiOutlineRefresh } from 'react-icons/hi'
 import { useSelector } from 'react-redux'
@@ -32,11 +33,12 @@ function Main() {
     (state: { user: { id: string; name: string; role: string } }) => state.user
   )
 
-  const emptyClient = {
+  const emptyClient: ClientModelMap = {
     id: '',
     name: '',
     dni: '',
-    status: ''
+    status: '',
+    employee: { id: '', name: '' }
   }
 
   const [clientToDelete, setClientToDelete] = useState(emptyClient)
@@ -44,8 +46,17 @@ function Main() {
   const [isLoadingListButton, setIsLoadingListButton] = useState(false)
   const [switchList, setSwitchList] = useState(false)
 
-  const [listOfClients, setListOfClients] = useState<ClientModelMap[]>([])
-  const [myListOfClients, setMyListOfClients] = useState<ClientModelMap[]>([])
+  const initialState: ClientModelMap[] = []
+
+  const [allClients, dispatchAllClients] = useReducer(
+    reducerClients,
+    initialState
+  )
+
+  const [myClients, dispatchMyClients] = useReducer(
+    reducerClients,
+    initialState
+  )
 
   //alertdialog delete client
   const {
@@ -71,12 +82,11 @@ function Main() {
         getAllClientsForEmployeeService(authState.id),
         getAllClientsService()
       ])
-
-      setMyListOfClients(myClients)
-      setListOfClients(allClients)
+      dispatchMyClients({ type: 'FETCH_SUCCESS', payload: myClients })
+      dispatchAllClients({ type: 'FETCH_SUCCESS', payload: allClients })
     } else if (authState.role === Roles.REGULAR) {
       await getAllClientsForEmployeeService(authState.id).then((res) => {
-        setMyListOfClients(res)
+        dispatchMyClients({ type: 'FETCH_SUCCESS', payload: res })
       })
     }
     setIsLoadingListButton(false)
@@ -86,64 +96,46 @@ function Main() {
     fetchClients()
   }, [fetchClients])
 
-  const updateListOfClients = (
-    index: number,
-    data: ClientModelMap,
-    listOfClients: ClientModelMap[]
-  ) => {
-    const newListOfClients = [...listOfClients]
-    newListOfClients[index] = {
-      ...newListOfClients[index],
-      status: data.status
+  useEffect(() => {
+    if (authState.role === Roles.ADMIN) {
+      socket.on('server:updateListOfClients:ADMIN', (data) => {
+        dispatchAllClients({ type: 'UPDATE_CLIENT', payload: data })
+      })
     }
 
-    return newListOfClients
-  }
+    if (authState.role === Roles.ADMIN) {
+      socket.on('server:addOneClient:ADMIN', (data) => {
+        dispatchAllClients({ type: 'ADD_CLIENT', payload: data })
+      })
+    }
 
-  useEffect(() => {
-    socket.on('server:updateListOfClients', (data) => {
-      if (authState.role === Roles.ADMIN) {
-        const indexListOfClients = listOfClients.findIndex(
-          (client) => client.id === data.id
-        )
-        indexListOfClients !== -1
-          ? setListOfClients(
-              updateListOfClients(indexListOfClients, data, listOfClients)
-            )
-          : setListOfClients((oldList) => [data, ...oldList])
-      }
-      if (data?.employee.id === authState.id) {
-        const indexMyListOfClients = myListOfClients.findIndex(
-          (client) => client.id === data.id
-        )
+    if (authState.role === Roles.ADMIN) {
+      socket.on('server:deleteOneClientOfLists:ADMIN', (id) => {
+        dispatchAllClients({ type: 'DELETE_CLIENT', payload: id })
+      })
+    }
 
-        indexMyListOfClients !== -1
-          ? setMyListOfClients(
-              updateListOfClients(indexMyListOfClients, data, myListOfClients)
-            )
-          : setMyListOfClients((oldList) => [data, ...oldList])
-      }
+    socket.on(`server:updateMyListOfClients:${authState.id}`, (data) => {
+      dispatchMyClients({ type: 'UPDATE_CLIENT', payload: data })
     })
 
-    socket.on('server:deleteOneClientOfLists', (id) => {
-      if (authState.role === Roles.ADMIN) {
-        const newListOfClients = listOfClients.filter(
-          (client) => client.id !== id
-        )
-        setListOfClients(newListOfClients)
-      }
-      const newMyListOfClients = myListOfClients.filter(
-        (client) => client.id !== id
-      )
+    socket.on(`server:addOneClient:${authState.id}`, (data) => {
+      dispatchMyClients({ type: 'ADD_CLIENT', payload: data })
+    })
 
-      setMyListOfClients(newMyListOfClients)
+    socket.on(`server:deleteOneClientOfLists:${authState.id}`, (id) => {
+      dispatchMyClients({ type: 'DELETE_CLIENT', payload: id })
     })
 
     return () => {
-      socket.off('server:updateListOfClients')
-      socket.off('server:deleteOneClientOfLists')
+      socket.off('server:updateListOfClients:ADMIN')
+      socket.off('server:addOneClient:ADMIN')
+      socket.off('server:deleteOneClientOfLists:ADMIN')
+      socket.off(`server:updateMyListOfClients:${authState.id}`)
+      socket.off(`server:addOneClient:${authState.id}`)
+      socket.off(`server:deleteOneClientOfLists:${authState.id}`)
     }
-  }, [myListOfClients, listOfClients, authState.role, authState.id])
+  }, [authState.role, authState.id])
 
   return (
     <LayoutPrivate>
@@ -160,26 +152,28 @@ function Main() {
         fetchClients={fetchClients}
       />
       <Navbar
+        socket={socket}
         title={switchList ? 'Todos Los Clientes' : 'Mis Clientes'}
-        fetchClients={fetchClients}
         onOpenDeleteManyDialog={onOpenDeleteManyDialog}
       />
       <Flex flexDirection={'column'} px={4}>
         <Divider my={4} />
         {switchList ? (
           <ListOfClients
-            listOfClients={listOfClients}
+            listOfClients={allClients}
             viewClientPerUser={true}
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
+            isLoadingListButton={isLoadingListButton}
             socket={socket}
           />
         ) : (
           <ListOfClients
-            listOfClients={myListOfClients}
+            listOfClients={myClients}
             viewClientPerUser={false}
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
+            isLoadingListButton={isLoadingListButton}
             socket={socket}
           />
         )}
@@ -212,12 +206,12 @@ function Main() {
                 }}>
                 {switchList ? (
                   <>
-                    Ir a Mis Clientes
+                    Mis Clientes
                     <Icon as={BsFillPersonFill} />
                   </>
                 ) : (
                   <>
-                    Ir a Todos los Clientes
+                    Todos los Clientes
                     <Icon as={BsPeopleFill} />
                   </>
                 )}

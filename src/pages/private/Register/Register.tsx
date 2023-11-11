@@ -29,7 +29,22 @@ import { registerNewUserService } from '@/services'
 const Register = () => {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState<boolean>()
-  const [logInErrorMessage, setLogInErrorMessage] = useState<string>()
+  const [registerErrorMessage, setRegisterErrorMessage] = useState<string>()
+  const [registerSuccessMessage, setRegisterSuccessMessage] = useState<string>()
+
+  const handleRegisterErrorForm = (message: string) => {
+    setRegisterErrorMessage(message)
+    setTimeout(() => {
+      setRegisterErrorMessage('')
+    }, 5000)
+  }
+
+  const handleRegisterSuccessForm = (message: string) => {
+    setRegisterSuccessMessage(message)
+    setTimeout(() => {
+      setRegisterSuccessMessage('')
+    }, 5000)
+  }
 
   const [showPass, setShowPass] = useState(false)
   const handleClickShowPass = () => setShowPass(!showPass)
@@ -53,7 +68,7 @@ const Register = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('NOMBRE OBLIGATORIO'),
     username: Yup.string().required('USUARIO OBLIGATORIO'),
-    email: Yup.string().required('CORREO OBLIGATORIO'),
+    email: Yup.string().email('INGRESE UN CORREO VÁLIDO'),
     password: Yup.string().required('CONTRASEÑA OBLIGATORIA'),
     role: Yup.string().required('SELECCIONA UN ROL')
   })
@@ -65,10 +80,11 @@ const Register = () => {
     setIsSubmitting(true)
     registerNewUserService(data)
       .then(() => {
-        actions.resetForm({})
+        handleRegisterSuccessForm('Usuario creado correctamente')
+        actions.resetForm()
       })
       .catch(() => {
-        setLogInErrorMessage('Ha ocurrido un error al crear el usuario.')
+        handleRegisterErrorForm('Ha ocurrido un error al crear el usuario.')
       })
     setIsSubmitting(false)
   }
@@ -84,8 +100,6 @@ const Register = () => {
       m={'0 auto'}>
       <Flex
         display={'column'}
-        pt={4}
-        px={4}
         bg={GlobalColors.BGCONTENT}
         border='1px solid'
         rounded={20}
@@ -93,14 +107,31 @@ const Register = () => {
         w={{ base: '80%', md: '80%', lg: '10%' }}
         maxW={{ base: '400px', lg: '400px' }}
         minW={{ lg: '400px' }}>
-        <Flex alignItems={'center'} justifyContent={'center'}>
+        <Flex justifyContent={'space-between'}>
           <Heading
             as='h3'
             id='principalTitle'
-            pb={4}
-            fontSize={{ base: '24px', sm: '24px', md: '24px', lg: '34px' }}>
-            Registrar Empleado
+            p={4}
+            fontSize={{
+              base: '1.2rem',
+              sm: '1.2rem',
+              md: '1.2rem',
+              lg: '1.3rem'
+            }}>
+            Registrar
           </Heading>
+          <Button
+            h={'60px'}
+            borderRadius={'0px 18px 0px 18px'}
+            bg={GlobalColors.BORDERCONTENT}
+            _hover={{
+              bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+            }}
+            onClick={() => {
+              navigate(`/${PrivateRoutes.PRIVATE}`)
+            }}>
+            Volver
+          </Button>
         </Flex>
         <Formik
           onSubmit={onSubmit}
@@ -108,7 +139,11 @@ const Register = () => {
           initialValues={initialValues}>
           {(formik) => (
             <form onSubmit={formik.handleSubmit}>
-              <VStack pb={4} justifyContent={'start'} alignItems={'start'}>
+              <VStack
+                pb={4}
+                justifyContent={'start'}
+                alignItems={'start'}
+                px={4}>
                 <FormControl
                   isInvalid={Boolean(
                     formik.errors.name && formik.touched.name
@@ -182,18 +217,6 @@ const Register = () => {
                   </InputGroup>
                   <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
                 </FormControl>
-                {logInErrorMessage ? (
-                  <Box
-                    m={'0 auto'}
-                    p={1}
-                    borderRadius={10}
-                    bgClip={'text'}
-                    bgGradient={GlobalColors.WARNINGCOLOR}>
-                    <Text as='b'>{logInErrorMessage}</Text>
-                  </Box>
-                ) : (
-                  ''
-                )}
                 <RadioGroup>
                   <Stack direction='row'>
                     <FormControl
@@ -213,7 +236,7 @@ const Register = () => {
                           name='role'
                           as={Radio}
                           value={Roles.REGULAR}>
-                          REGULAR
+                          RPP
                         </Field>
                         <Field
                           type='radio'
@@ -229,7 +252,28 @@ const Register = () => {
                     </FormControl>
                   </Stack>
                 </RadioGroup>
-                <Flex m={'0 auto'} gap={2}>
+                {registerErrorMessage ? (
+                  <Box
+                    m={'0 auto'}
+                    p={1}
+                    borderRadius={10}
+                    bgClip={'text'}
+                    bgGradient={GlobalColors.WARNINGCOLOR}>
+                    <Text as='b'>{registerErrorMessage}</Text>
+                  </Box>
+                ) : (
+                  ''
+                )}
+                {registerSuccessMessage ? (
+                  <Box m={'0 auto'} p={1} borderRadius={10}>
+                    <Text as='b' color={GlobalColors.EMPHASIZED}>
+                      {registerSuccessMessage}
+                    </Text>
+                  </Box>
+                ) : (
+                  ''
+                )}
+                <Flex m={'0 auto'} gap={2} pt={2}>
                   <Button
                     type='submit'
                     isLoading={isSubmitting}
@@ -237,21 +281,8 @@ const Register = () => {
                     _hover={{
                       bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
                     }}
-                    p={6}
                     borderRadius={18}>
                     Registrar
-                  </Button>
-                  <Button
-                    bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                    _hover={{
-                      bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                    }}
-                    p={6}
-                    onClick={() => {
-                      navigate(`/${PrivateRoutes.PRIVATE}`)
-                    }}
-                    borderRadius={18}>
-                    Volver
                   </Button>
                 </Flex>
               </VStack>

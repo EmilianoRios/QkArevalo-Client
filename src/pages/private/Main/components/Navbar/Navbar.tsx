@@ -1,6 +1,6 @@
 /* import { LogOut } from '@/components' */
-import { LogOut } from '@/components'
 import { GlobalColors, PrivateRoutes, StatusClient } from '@/models'
+import { resetUser } from '@/redux'
 import { updateAllStatusClientsForEmployeeService } from '@/services'
 
 import {
@@ -20,21 +20,23 @@ import {
 } from '@chakra-ui/react'
 import React from 'react'
 import { BiMenu } from 'react-icons/bi'
-import { BsFillTrashFill } from 'react-icons/bs'
+import { BsFillTrashFill, BsPeopleFill } from 'react-icons/bs'
+import { HiOutlineLogout } from 'react-icons/hi'
 import { IoReload } from 'react-icons/io5'
 import { TiUserAdd } from 'react-icons/ti'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { Socket } from 'socket.io-client'
 
 interface NavbarPrivateProps {
   title: string
-  fetchClients: () => void
+  socket: Socket
   onOpenDeleteManyDialog: () => void
 }
 
 const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
   title,
-  fetchClients,
+  socket,
   onOpenDeleteManyDialog
 }) => {
   const authState = useSelector(
@@ -42,14 +44,22 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
   )
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const logOut = () => {
+    dispatch(resetUser())
+    navigate(`/`)
+  }
 
   const handleSetDefaultStates = () => {
     updateAllStatusClientsForEmployeeService({
       employeeId: authState.id,
       status: StatusClient.DEFAULT
-    }).then(() => {
-      fetchClients()
-      /* socket.emit('client:resetStatusMyClients', res) */
+    }).then((res) => {
+      socket.emit('client:updateListOfClients', {
+        data: res,
+        employeeId: authState.id
+      })
     })
   }
 
@@ -86,33 +96,27 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
           </Text>
         </Flex>
       </Flex>
-      <Flex
-        borderRadius={'0px 20px 0px 20px'}
-        p={{ base: 3, sm: 3, md: 3, lg: 4 }}
-        bg={'whiteAlpha.100'}
-        color={'white'}
-        justifyContent='center'
-        bottom={0}
-        left={0}
-        zIndex={1}>
+      <Flex>
         <List
-          display='flex'
-          alignItems='center'
           gap={4}
           fontSize={{ base: '0.81rem', sm: '0.85rem', lg: 'unset' }}>
           <ListItem>
             <Menu>
               <MenuButton
+                h={'60px'}
+                w={'60px'}
+                borderRadius={'0px 18px 0px 18px'}
+                p={{ base: 3, sm: 3, md: 3, lg: 4 }}
                 as={IconButton}
                 aria-label='Options'
                 icon={<BiMenu />}
-                variant='ghost'
               />
               <MenuList bg={GlobalColors.BORDERCONTENT}>
                 <MenuOptionGroup title='Menú'>
                   <Flex px={2} flexDirection={'column'} gap={2}>
                     <MenuItem
                       bg={GlobalColors.BGRADIENTDEFAULT}
+                      _hover={{ color: GlobalColors.EMPHASIZED }}
                       borderRadius={4}
                       onClick={() => {
                         handleSetDefaultStates()
@@ -121,37 +125,61 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
                         display={'flex'}
                         alignItems={'center'}
                         gap={1}
-                        _hover={{ color: GlobalColors.EMPHASIZED }}
                         transition={'0.1s'}>
-                        Restablecer Estados <Icon as={IoReload} />
+                        Restablecer Mis Estados <Icon as={IoReload} />
                       </Text>
                     </MenuItem>
                     {authState.role === 'ADMIN' && (
-                      <MenuItem
-                        bg={GlobalColors.BGRADIENTDEFAULT}
-                        borderRadius={4}
-                        onClick={() => {
-                          navigate(
-                            `/${PrivateRoutes.PRIVATE}/${PrivateRoutes.REGISTER}`
-                          )
-                        }}>
-                        <Text
-                          display={'flex'}
-                          alignItems={'center'}
-                          gap={1}
+                      <>
+                        <MenuItem
+                          bg={GlobalColors.BGRADIENTDEFAULT}
                           _hover={{ color: GlobalColors.EMPHASIZED }}
-                          transition={'0.1s'}>
-                          Registrar <Icon as={TiUserAdd} />
-                        </Text>
-                      </MenuItem>
+                          borderRadius={4}
+                          onClick={() => {
+                            navigate(
+                              `/${PrivateRoutes.PRIVATE}/${PrivateRoutes.REGISTER}`
+                            )
+                          }}>
+                          <Text
+                            display={'flex'}
+                            alignItems={'center'}
+                            gap={1}
+                            transition={'0.1s'}>
+                            Registrar <Icon as={TiUserAdd} />
+                          </Text>
+                        </MenuItem>
+                        <MenuItem
+                          bg={GlobalColors.BGRADIENTDEFAULT}
+                          _hover={{ color: GlobalColors.EMPHASIZED }}
+                          borderRadius={4}
+                          onClick={() => {
+                            navigate(
+                              `/${PrivateRoutes.PRIVATE}/${PrivateRoutes.LISTOFUSERS}`
+                            )
+                          }}>
+                          <Text
+                            display={'flex'}
+                            alignItems={'center'}
+                            gap={1}
+                            transition={'0.1s'}>
+                            Lista de Usuarios <Icon as={BsPeopleFill} />
+                          </Text>
+                        </MenuItem>
+                      </>
                     )}
-                    <Flex
+                    <MenuItem
                       bg={GlobalColors.BGRADIENTDEFAULT}
+                      _hover={{ color: GlobalColors.EMPHASIZED }}
                       borderRadius={4}
-                      py={1}
-                      px={3}>
-                      <LogOut />
-                    </Flex>
+                      onClick={() => logOut()}>
+                      <Text
+                        display={'flex'}
+                        alignItems={'center'}
+                        gap={1}
+                        transition={'0.1s'}>
+                        Cerrar Sesión <Icon as={HiOutlineLogout} />
+                      </Text>
+                    </MenuItem>
                   </Flex>
                 </MenuOptionGroup>
                 <MenuDivider />

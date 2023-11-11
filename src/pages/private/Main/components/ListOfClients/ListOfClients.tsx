@@ -1,6 +1,15 @@
 import { ClientModelMap, GlobalColors } from '@/models'
 import { MenuClient, SearchClient } from '@/pages'
-import { Card, Divider, Flex, Heading, Text, VStack } from '@chakra-ui/react'
+import { formatDNI } from '@/utils'
+import {
+  Card,
+  Divider,
+  Flex,
+  Heading,
+  Spinner,
+  Text,
+  VStack
+} from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 
@@ -9,6 +18,7 @@ interface ListOfClientsProps {
   viewClientPerUser: boolean
   onOpenDeleteDialog: () => void
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
+  isLoadingListButton: boolean
   socket: Socket
 }
 
@@ -16,6 +26,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
   listOfClients,
   viewClientPerUser,
   onOpenDeleteDialog,
+  isLoadingListButton,
   setClientToDelete,
   socket
 }) => {
@@ -42,7 +53,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
       const filteredItems = listOfClients.filter(
         (item: ClientModelMap) =>
           item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.dni?.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.dni?.includes(searchText.replace(/\./g, '')) ||
           item.employee?.name?.toLowerCase().includes(searchText.toLowerCase())
       )
 
@@ -52,6 +63,19 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
   )
 
   useEffect(() => {
+    const handleSearch = (searchText: string) => {
+      setSearchTerm(searchText)
+
+      const filteredItems = listOfClients.filter(
+        (item: ClientModelMap) =>
+          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.dni?.includes(searchText.replace(/\./g, '')) ||
+          item.employee?.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+
+      setListOfClientsFiltered(filteredItems)
+    }
+
     setListOfClientsFiltered(listOfClients)
     handleSearch(searchTerm)
   }, [listOfClients, handleSearch, searchTerm])
@@ -71,14 +95,14 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
               <Card
                 w={'100%'}
                 key={client.id}
-                p={2}
-                bgGradient={`linear(to-tr, ${
+                bgGradient={`linear-gradient(90deg, ${
                   GlobalColors.BGGRADIENTPRIMARY
                 },${setColorStatus(client.status)} )`}
                 border='1px solid'
                 borderColor={GlobalColors.BORDERCONTENT}>
                 <Flex alignItems={'center'} justifyContent={'space-between'}>
                   <Flex
+                    p={2}
                     overflow={'hidden'}
                     gap={4}
                     alignContent={'center'}
@@ -95,7 +119,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
                         {client.name}
                       </Heading>
                       <Text color={GlobalColors.EMPHASIZED} fontSize={'0.8rem'}>
-                        {client.dni || 'Sin DNI.'}
+                        {formatDNI(client.dni) || 'Sin DNI.'}
                       </Text>
                       {viewClientPerUser && (
                         <Text fontSize={'0.7rem'}>
@@ -114,9 +138,18 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
               </Card>
             )
           })}
-        {listOfClients?.length === 0 && (
+        {!isLoadingListButton && listOfClients?.length === 0 && (
           <VStack pb={12}>
             <Text>{'No tienes ningún cliente!.'}</Text>
+          </VStack>
+        )}
+        {isLoadingListButton && (
+          <VStack
+            p={10}
+            justifyContent={'center'}
+            alignItems={'center'}
+            h={'100vh'}>
+            <Spinner size={'lg'} />
           </VStack>
         )}
       </VStack>

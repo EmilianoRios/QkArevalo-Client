@@ -1,4 +1,4 @@
-import { Main, Register } from '@/pages'
+import { ListOfUsers, Main, Register } from '@/pages'
 import { RoutesWithNotFound } from '@/utils'
 import { Route } from 'react-router-dom'
 
@@ -12,6 +12,7 @@ function AppPrivateRoutes({ isLoadingPrivate }: Props) {
       {/* --- BLOG ROUTES --- */}
       <Route index element={<Main />} />
       <Route path={`/register`} element={<Register />} />
+      <Route path={`/users`} element={<ListOfUsers />} />
     </RoutesWithNotFound>
   )
 }

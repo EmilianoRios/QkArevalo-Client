@@ -12,8 +12,8 @@ const config: ThemeConfig = {
 const themeChakra = extendTheme({
   config,
   fonts: {
-    body: `'Poppins', sans-serif`,
-    heading: `'Poppins', sans-serif`
+    body: `'Inter', sans-serif`,
+    heading: `'Inter', sans-serif`
   },
   colors: {
     gray: {
