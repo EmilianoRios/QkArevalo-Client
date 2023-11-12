@@ -12,7 +12,7 @@ const NotFound = () => {
       w={'100%'}
       h={'100vh'}
       flexDirection={'column'}>
-      <Box bgClip={'text'} bgGradient={GlobalColors.TEXTBLUEGRADIENT}>
+      <Box bgClip={'text'} bgGradient={GlobalColors.SENDMESSAGEBUTTON}>
         <Text fontSize={{ base: '10rem', lg: '20rem' }}>404</Text>
       </Box>
       <Box position={'absolute'} pt={{ base: 40, lg: 80 }}>
