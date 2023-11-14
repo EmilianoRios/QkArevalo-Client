@@ -1,4 +1,5 @@
 export * from './private/ListOfUsers'
+export * from './private/Main/components/CardClient'
 export * from './private/Main/components/DeleteDialog'
 export * from './private/Main/components/DeleteManyDialog'
 export * from './private/Main/components/FormClient'

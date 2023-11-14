@@ -1,15 +1,6 @@
-import { ClientModelMap, GlobalColors } from '@/models'
-import { MenuClient, SearchClient } from '@/pages'
-import { formatDNI } from '@/utils'
-import {
-  Card,
-  Divider,
-  Flex,
-  Heading,
-  Spinner,
-  Text,
-  VStack
-} from '@chakra-ui/react'
+import { ClientModelMap } from '@/models'
+import { CardClient, SearchClient } from '@/pages'
+import { Divider, Spinner, Text, VStack } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 
@@ -33,18 +24,6 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
   const [listOfClientsFiltered, setListOfClientsFiltered] =
     useState<ClientModelMap[]>()
   const [searchTerm, setSearchTerm] = useState('')
-
-  const setColorStatus = (status: string) => {
-    if (status === 'PAID') {
-      return GlobalColors.BGRADIENTPAID
-    } else if (status === 'PENDING') {
-      return GlobalColors.BGRADIENTPENDING
-    } else if (status === 'CANCELLED') {
-      return GlobalColors.BGRADIENTCANCELLED
-    }
-
-    return GlobalColors.BGRADIENTDEFAULT
-  }
 
   const handleSearch = useCallback(
     (searchText: string) => {
@@ -86,56 +65,26 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
     <>
       <VStack
         gap={2}
-        h={'49vh'}
+        h={'33.5vh'}
         overflowY={'scroll'}
-        className={'list-of-clients'}>
+        className={'list-of-clients'}
+        py={1}>
         {listOfClientsFiltered &&
           listOfClientsFiltered.map((client: ClientModelMap, index, array) => {
             return (
-              <Card
-                w={'100%'}
-                key={client.id}
-                bgGradient={`linear-gradient(90deg, ${
-                  GlobalColors.BGGRADIENTPRIMARY
-                },${setColorStatus(client.status)} )`}
-                border='1px solid'
-                borderColor={GlobalColors.BORDERCONTENT}>
-                <Flex alignItems={'center'} justifyContent={'space-between'}>
-                  <Flex
-                    p={2}
-                    overflow={'hidden'}
-                    gap={4}
-                    alignContent={'center'}
-                    alignItems={'center'}>
-                    {!searchTerm && (
-                      <Flex w={'auto'}>
-                        <Heading textAlign={'center'} fontSize={'2rem'}>
-                          {array.length - index}
-                        </Heading>
-                      </Flex>
-                    )}
-                    <Flex flexDirection={'column'}>
-                      <Heading size={'md'} noOfLines={1} fontSize={'0.9rem'}>
-                        {client.name}
-                      </Heading>
-                      <Text color={GlobalColors.EMPHASIZED} fontSize={'0.8rem'}>
-                        {formatDNI(client.dni) || 'Sin DNI.'}
-                      </Text>
-                      {viewClientPerUser && (
-                        <Text fontSize={'0.7rem'}>
-                          De: {client.employee?.name}
-                        </Text>
-                      )}
-                    </Flex>
-                  </Flex>
-                  <MenuClient
-                    onOpenDeleteDialog={onOpenDeleteDialog}
-                    client={client}
-                    setClientToDelete={setClientToDelete}
-                    socket={socket}
-                  />
-                </Flex>
-              </Card>
+              <>
+                <CardClient
+                  key={client.id}
+                  viewClientPerUser={viewClientPerUser}
+                  index={index}
+                  array={array}
+                  searchTerm={searchTerm}
+                  client={client}
+                  onOpenDeleteDialog={onOpenDeleteDialog}
+                  setClientToDelete={setClientToDelete}
+                  socket={socket}
+                />
+              </>
             )
           })}
         {!isLoadingListButton && listOfClients?.length === 0 && (

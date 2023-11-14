@@ -1,4 +1,5 @@
 export { default as Main } from './Main'
+export * from './components/CardClient'
 export * from './components/DeleteDialog'
 export * from './components/DeleteManyDialog'
 export * from './components/FormClient'

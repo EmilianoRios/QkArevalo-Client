@@ -5,7 +5,6 @@
 
 html {
   scrollbar-gutter: stable;
-  overflow-y: hidden;
 }
 
 .list-of-clients::-webkit-scrollbar {

@@ -20,7 +20,8 @@ const LayoutPrivate: React.FC<LayoutPrivateProps> = ({ children }) => {
         flexDirection={'column'}
         justifyContent={'center'}
         alignContent={'center'}
-        alignItems={'center'}>
+        alignItems={'center'}
+        overflowY={'hidden'}>
         <Flex
           display={'column'}
           bg={GlobalColors.BGCONTENT}

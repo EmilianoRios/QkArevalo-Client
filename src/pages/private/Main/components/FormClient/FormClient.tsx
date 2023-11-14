@@ -1,6 +1,6 @@
 import { GlobalColors } from '@/models'
 import { createNewClientService } from '@/services'
-import { formatDNI } from '@/utils'
+import { capitalizeInitials, formatDNI } from '@/utils'
 import {
   Button,
   Flex,
@@ -44,8 +44,9 @@ const FormClient: React.FC<FormClientProps> = ({ socket }) => {
   ) => {
     setIsSubmitting(true)
     const cleanDNI = formatDNI(data.dni)
+    const cleanName = capitalizeInitials(data.name)
     createNewClientService({
-      ...data,
+      name: cleanName,
       dni: cleanDNI,
       employeeId: authState.id
     })
