@@ -1,5 +1,5 @@
 import { LayoutPrivate } from '@/components'
-import { ClientModelMap, GlobalColors, Roles } from '@/models'
+import { ClientModelMap, GlobalColors } from '@/models'
 import {
   DeleteDialog,
   DeleteManyDialog,
@@ -77,43 +77,32 @@ function Main() {
 
   const fetchClients = useCallback(async () => {
     setIsLoadingListButton(true)
-    if (authState.role === Roles.ADMIN) {
-      const [myClients, allClients] = await Promise.all([
-        getAllClientsForEmployeeService(authState.id),
-        getAllClientsService()
-      ])
-      dispatchMyClients({ type: 'FETCH_SUCCESS', payload: myClients })
-      dispatchAllClients({ type: 'FETCH_SUCCESS', payload: allClients })
-    } else if (authState.role === Roles.REGULAR) {
-      await getAllClientsForEmployeeService(authState.id).then((res) => {
-        dispatchMyClients({ type: 'FETCH_SUCCESS', payload: res })
-      })
-    }
+
+    const [myClients, allClients] = await Promise.all([
+      getAllClientsForEmployeeService(authState.id),
+      getAllClientsService()
+    ])
+    dispatchMyClients({ type: 'FETCH_SUCCESS', payload: myClients })
+    dispatchAllClients({ type: 'FETCH_SUCCESS', payload: allClients })
     setIsLoadingListButton(false)
-  }, [authState.id, authState.role])
+  }, [authState.id])
 
   useEffect(() => {
     fetchClients()
   }, [fetchClients])
 
   useEffect(() => {
-    if (authState.role === Roles.ADMIN) {
-      socket.on('server:updateListOfClients:ADMIN', (data) => {
-        dispatchAllClients({ type: 'UPDATE_CLIENT', payload: data })
-      })
-    }
+    socket.on('server:updateListOfClients:ADMIN', (data) => {
+      dispatchAllClients({ type: 'UPDATE_CLIENT', payload: data })
+    })
 
-    if (authState.role === Roles.ADMIN) {
-      socket.on('server:addOneClient:ADMIN', (data) => {
-        dispatchAllClients({ type: 'ADD_CLIENT', payload: data })
-      })
-    }
+    socket.on('server:addOneClient:ADMIN', (data) => {
+      dispatchAllClients({ type: 'ADD_CLIENT', payload: data })
+    })
 
-    if (authState.role === Roles.ADMIN) {
-      socket.on('server:deleteOneClientOfLists:ADMIN', (id) => {
-        dispatchAllClients({ type: 'DELETE_CLIENT', payload: id })
-      })
-    }
+    socket.on('server:deleteOneClientOfLists:ADMIN', (id) => {
+      dispatchAllClients({ type: 'DELETE_CLIENT', payload: id })
+    })
 
     socket.on(`server:updateMyListOfClients:${authState.id}`, (data) => {
       dispatchMyClients({ type: 'UPDATE_CLIENT', payload: data })
@@ -162,6 +151,7 @@ function Main() {
           <ListOfClients
             listOfClients={allClients}
             viewClientPerUser={true}
+            switchList={switchList}
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
             isLoadingListButton={isLoadingListButton}
@@ -171,6 +161,7 @@ function Main() {
           <ListOfClients
             listOfClients={myClients}
             viewClientPerUser={false}
+            switchList={switchList}
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
             isLoadingListButton={isLoadingListButton}
@@ -182,42 +173,40 @@ function Main() {
           justifyContent={'center'}
           alignItems={'center'}
           m={'0 auto'}>
-          {authState.role === Roles.ADMIN && (
-            <Button
-              isLoading={isLoadingListButton}
-              bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-              _hover={{
-                bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-              }}
-              p={4}
-              w={'auto'}
-              borderRadius={18}
-              onClick={() => {
-                handleSwitchList()
+          <Button
+            isLoading={isLoadingListButton}
+            bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+            _hover={{
+              bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+            }}
+            p={4}
+            w={'auto'}
+            borderRadius={18}
+            onClick={() => {
+              handleSwitchList()
+            }}>
+            <Text
+              display={'flex'}
+              gap={1}
+              alignItems={'center'}
+              fontSize={{
+                base: '0.8rem',
+                md: '0.8rem',
+                lg: '0.9rem'
               }}>
-              <Text
-                display={'flex'}
-                gap={1}
-                alignItems={'center'}
-                fontSize={{
-                  base: '0.8rem',
-                  md: '0.8rem',
-                  lg: '0.9rem'
-                }}>
-                {switchList ? (
-                  <>
-                    Mis Clientes
-                    <Icon as={BsFillPersonFill} />
-                  </>
-                ) : (
-                  <>
-                    Todos los Clientes
-                    <Icon as={BsPeopleFill} />
-                  </>
-                )}
-              </Text>
-            </Button>
-          )}
+              {switchList ? (
+                <>
+                  Mis Clientes
+                  <Icon as={BsFillPersonFill} />
+                </>
+              ) : (
+                <>
+                  Todos los Clientes
+                  <Icon as={BsPeopleFill} />
+                </>
+              )}
+            </Text>
+          </Button>
           <Button
             isLoading={isLoadingListButton}
             bgGradient={GlobalColors.SENDMESSAGEBUTTON}

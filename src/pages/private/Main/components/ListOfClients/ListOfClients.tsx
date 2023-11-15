@@ -7,6 +7,7 @@ import { Socket } from 'socket.io-client'
 interface ListOfClientsProps {
   listOfClients: ClientModelMap[]
   viewClientPerUser: boolean
+  switchList: boolean
   onOpenDeleteDialog: () => void
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
   isLoadingListButton: boolean
@@ -16,6 +17,7 @@ interface ListOfClientsProps {
 const ListOfClients: React.FC<ListOfClientsProps> = ({
   listOfClients,
   viewClientPerUser,
+  switchList,
   onOpenDeleteDialog,
   isLoadingListButton,
   setClientToDelete,
@@ -72,19 +74,18 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
         {listOfClientsFiltered &&
           listOfClientsFiltered.map((client: ClientModelMap, index, array) => {
             return (
-              <>
-                <CardClient
-                  key={client.id}
-                  viewClientPerUser={viewClientPerUser}
-                  index={index}
-                  array={array}
-                  searchTerm={searchTerm}
-                  client={client}
-                  onOpenDeleteDialog={onOpenDeleteDialog}
-                  setClientToDelete={setClientToDelete}
-                  socket={socket}
-                />
-              </>
+              <CardClient
+                key={client.id}
+                viewClientPerUser={viewClientPerUser}
+                index={index}
+                array={array}
+                searchTerm={searchTerm}
+                client={client}
+                switchList={switchList}
+                onOpenDeleteDialog={onOpenDeleteDialog}
+                setClientToDelete={setClientToDelete}
+                socket={socket}
+              />
             )
           })}
         {!isLoadingListButton && listOfClients?.length === 0 && (

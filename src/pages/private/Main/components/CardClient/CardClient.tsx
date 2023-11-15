@@ -1,14 +1,16 @@
-import { ClientModelMap, GlobalColors } from '@/models'
+import { ClientModelMap, GlobalColors, Roles } from '@/models'
 import { formatDNI } from '@/utils'
 import { Button, Card, Flex, Heading, IconButton, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { MenuClient } from '../MenuClient'
 import { Socket } from 'socket.io-client'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
+import { useSelector } from 'react-redux'
 
 interface CardClientProps {
   viewClientPerUser: boolean
   searchTerm: string
+  switchList: boolean
   client: ClientModelMap
   array: ClientModelMap[]
   index: number
@@ -20,6 +22,7 @@ interface CardClientProps {
 const CardClient: React.FC<CardClientProps> = ({
   viewClientPerUser,
   searchTerm,
+  switchList,
   client,
   array,
   index,
@@ -27,6 +30,10 @@ const CardClient: React.FC<CardClientProps> = ({
   setClientToDelete,
   socket
 }) => {
+  const authState = useSelector(
+    (state: { user: { id: string; name: string; role: string } }) => state.user
+  )
+
   const [openOptions, setOpenOptions] = useState('none')
 
   const setColorStatus = (status: string) => {
@@ -80,37 +87,45 @@ const CardClient: React.FC<CardClientProps> = ({
               </Flex>
             </Flex>
           </Flex>
-          <Button
-            bg={GlobalColors.BGCONTENT}
-            _hover={{ bg: GlobalColors.BGCONTENT }}
-            rounded={
-              openOptions === 'none' ? '0px 4px 4px 0px' : '0px 4px 0px 0px'
-            }
-            h={'100%'}
-            as={IconButton}
-            icon={
-              openOptions === 'none' ? (
-                <MdKeyboardArrowUp />
-              ) : (
-                <MdKeyboardArrowDown />
-              )
-            }
-            aria-label='Options-Client'
-            onClick={() => {
-              openOptions === 'none'
-                ? setOpenOptions('flex')
-                : setOpenOptions('none')
-            }}
-          />
+          {authState.role === Roles.REGULAR && switchList === true ? (
+            ''
+          ) : (
+            <Button
+              bg={GlobalColors.BGCONTENT}
+              _hover={{ bg: GlobalColors.BGCONTENT }}
+              rounded={
+                openOptions === 'none' ? '0px 4px 4px 0px' : '0px 4px 0px 0px'
+              }
+              h={'100%'}
+              as={IconButton}
+              icon={
+                openOptions === 'none' ? (
+                  <MdKeyboardArrowUp />
+                ) : (
+                  <MdKeyboardArrowDown />
+                )
+              }
+              aria-label='Options-Client'
+              onClick={() => {
+                openOptions === 'none'
+                  ? setOpenOptions('flex')
+                  : setOpenOptions('none')
+              }}
+            />
+          )}
         </Flex>
-        <MenuClient
-          openOptions={openOptions}
-          setOpenOptions={setOpenOptions}
-          onOpenDeleteDialog={onOpenDeleteDialog}
-          client={client}
-          setClientToDelete={setClientToDelete}
-          socket={socket}
-        />
+        {authState.role === Roles.REGULAR && switchList === true ? (
+          ''
+        ) : (
+          <MenuClient
+            openOptions={openOptions}
+            setOpenOptions={setOpenOptions}
+            onOpenDeleteDialog={onOpenDeleteDialog}
+            client={client}
+            setClientToDelete={setClientToDelete}
+            socket={socket}
+          />
+        )}
       </Card>
     </>
   )
