@@ -2,10 +2,10 @@ import { ClientModelMap, GlobalColors, Roles } from '@/models'
 import { formatDNI } from '@/utils'
 import { Button, Card, Flex, Heading, IconButton, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
-import { MenuClient } from '../MenuClient'
-import { Socket } from 'socket.io-client'
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
+import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md'
 import { useSelector } from 'react-redux'
+import { Socket } from 'socket.io-client'
+import { MenuClient } from '../MenuClient'
 
 interface CardClientProps {
   viewClientPerUser: boolean
