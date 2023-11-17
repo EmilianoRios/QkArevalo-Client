@@ -1,10 +1,10 @@
-import { PrivateRoutes, Roles } from '@/models'
 import { LoadingPage } from '@/components'
+import { AuthGuard, RoleGuard } from '@/guard'
+import { PrivateRoutes, Roles } from '@/models'
+import { Login, Main } from '@/pages'
+import { AppPrivateRoutes } from '@/routes'
 import { RoutesWithNotFound } from '@/utils'
 import { Route } from 'react-router-dom'
-import { AuthGuard, RoleGuard } from '@/guard'
-import { AppPrivateRoutes } from '@/routes'
-import { Login, Main } from '@/pages'
 
 interface Props {
   isLoadingPrivate: boolean

@@ -141,6 +141,8 @@ function Main() {
         fetchClients={fetchClients}
       />
       <Navbar
+        allClients={allClients}
+        myClients={myClients}
         socket={socket}
         title={switchList ? 'Todos Los Clientes' : 'Mis Clientes'}
         onOpenDeleteManyDialog={onOpenDeleteManyDialog}

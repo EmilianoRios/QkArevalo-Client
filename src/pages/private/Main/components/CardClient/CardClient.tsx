@@ -1,4 +1,4 @@
-import { ClientModelMap, GlobalColors, Roles } from '@/models'
+import { ClientModelMap, GlobalColors, Roles, StatusClient } from '@/models'
 import { formatDNI } from '@/utils'
 import { Button, Card, Flex, Heading, IconButton, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
@@ -37,11 +37,11 @@ const CardClient: React.FC<CardClientProps> = ({
   const [openOptions, setOpenOptions] = useState('none')
 
   const setColorStatus = (status: string) => {
-    if (status === 'PAID') {
+    if (status === StatusClient.PAID) {
       return GlobalColors.BGRADIENTPAID
-    } else if (status === 'PENDING') {
+    } else if (status === StatusClient.PENDING) {
       return GlobalColors.BGRADIENTPENDING
-    } else if (status === 'CANCELLED') {
+    } else if (status === StatusClient.CANCELLED) {
       return GlobalColors.BGRADIENTCANCELLED
     }
 

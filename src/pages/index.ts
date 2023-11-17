@@ -1,3 +1,4 @@
+export * from './private/CreatePdf'
 export * from './private/ListOfUsers'
 export * from './private/Main/components/CardClient'
 export * from './private/Main/components/DeleteDialog'

@@ -43,8 +43,17 @@ const FormClient: React.FC<FormClientProps> = ({ socket }) => {
     actions: FormikHelpers<MyFormValues>
   ) => {
     setIsSubmitting(true)
-    const cleanDNI = formatDNI(data.dni)
-    const cleanName = capitalizeInitials(data.name)
+    const regex = /^(.*[^\d])?(\d{8})?$/
+    const match = data.nameAndDni.match(regex)
+    let cleanDNI
+    let cleanName
+
+    if (match) {
+      const [, name, dni] = match
+      cleanDNI = formatDNI(dni)
+      cleanName = capitalizeInitials(name)
+    }
+
     createNewClientService({
       name: cleanName,
       dni: cleanDNI,
@@ -64,23 +73,33 @@ const FormClient: React.FC<FormClientProps> = ({ socket }) => {
   }
 
   interface MyFormValues {
-    name: string
-    dni: string
+    nameAndDni: string
   }
 
   const initialValues: MyFormValues = {
-    name: '' as string,
-    dni: '' as string
+    nameAndDni: '' as string
+  }
+
+  const nameAndDniValidation = (value: any): boolean => {
+    if (!value) {
+      return false
+    }
+    const regex = /^(.*[^\d])?(\d{8})?$/
+    const match = value.match(regex)
+    if (!match) {
+      return false
+    }
+    const [, name, dni] = match
+
+    return !!name && (!dni || dni.length === 8)
   }
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required('NOMBRE OBLIGATORIO'),
-    dni: Yup.string()
-      .matches(
-        /^(?:\d{8}|\d{2}\.\d{3}\.\d{3})?$/,
-        'El formato debe ser 12345678 o 12.345.678'
-      )
-      .notRequired()
+    nameAndDni: Yup.string().test(
+      'nameAndDni',
+      'Nombres o DNI no válidos',
+      nameAndDniValidation
+    )
   })
 
   return (
@@ -108,64 +127,49 @@ const FormClient: React.FC<FormClientProps> = ({ socket }) => {
         {(formik) => (
           <form onSubmit={formik.handleSubmit}>
             <VStack pb={4}>
-              <Flex gap={4}>
-                <Flex gap={4} w={'100%'}>
-                  <FormControl
-                    isInvalid={Boolean(
-                      formik.errors.name && formik.touched.name
-                    )}>
-                    <FormLabel p={0} m={0}>
-                      Nombre:
-                    </FormLabel>
-                    <Field
-                      w={'100%'}
-                      type='string'
-                      name='name'
-                      placeholder='Nombre'
-                      as={Input}
-                    />
-                    <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
-                  </FormControl>
-                  <FormControl
-                    isInvalid={Boolean(
-                      formik.errors.dni && formik.touched.dni
-                    )}>
-                    <FormLabel p={0} m={0}>
-                      DNI:
-                    </FormLabel>
-                    <Field
-                      type='string'
-                      name='dni'
-                      placeholder='DNI'
-                      as={Input}
-                    />
-                    <FormErrorMessage>{formik.errors.dni}</FormErrorMessage>
-                  </FormControl>
-                </Flex>
-                <Flex alignContent={'end'} alignItems={'end'}>
-                  <Button
-                    type='submit'
-                    isLoading={isSubmitting}
-                    bgGradient={GlobalColors.SENDMESSAGEBUTTON}
-                    _hover={{
-                      bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
-                    }}
-                    p={4}
-                    w={'auto'}
-                    borderRadius={18}>
-                    <Text
-                      display={'flex'}
-                      gap={1}
-                      alignItems={'center'}
-                      fontSize={{
-                        base: '0.8rem',
-                        md: '0.8rem',
-                        lg: '0.9rem'
-                      }}>
-                      Cargar <Icon as={HiUpload} />
-                    </Text>
-                  </Button>
-                </Flex>
+              <Flex gap={4} w={'100%'}>
+                <FormControl
+                  isInvalid={Boolean(
+                    formik.errors.nameAndDni && formik.touched.nameAndDni
+                  )}>
+                  <FormLabel p={0} m={0}>
+                    Nombres DNI:
+                  </FormLabel>
+                  <Field
+                    w={'100%'}
+                    type='string'
+                    name='nameAndDni'
+                    placeholder='Nombres o Nombres + DNI'
+                    as={Input}
+                  />
+                  <FormErrorMessage>
+                    {formik.errors.nameAndDni}
+                  </FormErrorMessage>
+                </FormControl>
+              </Flex>
+              <Flex alignContent={'end'} alignItems={'end'}>
+                <Button
+                  type='submit'
+                  isLoading={isSubmitting}
+                  bgGradient={GlobalColors.SENDMESSAGEBUTTON}
+                  _hover={{
+                    bgGradient: GlobalColors.SENDMESSAGEBUTTONHOVER
+                  }}
+                  p={4}
+                  w={'auto'}
+                  borderRadius={18}>
+                  <Text
+                    display={'flex'}
+                    gap={1}
+                    alignItems={'center'}
+                    fontSize={{
+                      base: '0.8rem',
+                      md: '0.8rem',
+                      lg: '0.9rem'
+                    }}>
+                    Cargar <Icon as={HiUpload} />
+                  </Text>
+                </Button>
               </Flex>
             </VStack>
           </form>
