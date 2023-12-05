@@ -1,6 +1,6 @@
 import { ClientModelMap } from '@/models'
 import { CardClient, SearchClient } from '@/pages'
-import { Button, Divider, Spinner, Text, VStack } from '@chakra-ui/react'
+import { Button, Divider, Flex, Spinner, Text, VStack } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 
@@ -14,6 +14,7 @@ interface ListOfClientsProps {
   onOpenDeleteDialog: () => void
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
   isLoadingListButton: boolean
+  isLoadingViewMoreButton: boolean
   socket: Socket
 }
 
@@ -26,12 +27,15 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
   switchList,
   onOpenDeleteDialog,
   isLoadingListButton,
+  isLoadingViewMoreButton,
   setClientToDelete,
   socket
 }) => {
   const [listOfClientsFiltered, setListOfClientsFiltered] =
     useState<ClientModelMap[]>()
   const [searchTerm, setSearchTerm] = useState('')
+
+  let numberClient = totalOfClients
 
   const handleSearch = useCallback(
     (searchText: string) => {
@@ -83,7 +87,7 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
               <CardClient
                 key={client.id}
                 viewClientPerUser={viewClientPerUser}
-                index={totalOfClients--}
+                index={numberClient--}
                 searchTerm={searchTerm}
                 client={client}
                 switchList={switchList}
@@ -93,14 +97,21 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
               />
             )
           })}
-        {switchList && !searchTerm && (
-          <Button
-            size={'sm'}
-            p={2}
-            onClick={() => setCurrentPage(currentPage + 1)}>
-            Cargar más
-          </Button>
-        )}
+        <Flex gap={2}>
+          {switchList &&
+          !searchTerm &&
+          Math.round(totalOfClients / 21) > currentPage ? (
+            <Button
+              isLoading={isLoadingViewMoreButton}
+              size={'sm'}
+              p={2}
+              onClick={() => setCurrentPage(currentPage + 1)}>
+              Cargar más
+            </Button>
+          ) : (
+            ''
+          )}
+        </Flex>
         {!isLoadingListButton && listOfClients?.length === 0 && (
           <VStack pb={12}>
             <Text>{'No tienes ningún cliente!.'}</Text>
@@ -117,6 +128,14 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
         )}
       </VStack>
       <Divider my={4} />
+      <Flex justifyContent={'center'} alignItems={'center'}>
+        {Math.round(totalOfClients / 21) > currentPage && (
+          <Text fontSize={'xs'}>
+            Si deseas buscar algún usuario asegurate de cargar todos los
+            clientes.
+          </Text>
+        )}
+      </Flex>
       <SearchClient
         searchTerm={searchTerm}
         handleSearch={(e) => handleSearch(e.target.value)}

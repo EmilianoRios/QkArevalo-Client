@@ -47,6 +47,7 @@ function Main() {
   const [clientToDelete, setClientToDelete] = useState(emptyClient)
 
   const [isLoadingListButton, setIsLoadingListButton] = useState(false)
+  const [isLoadingViewMoreButton, setIsLoadingViewMoreButton] = useState(false)
   const [switchList, setSwitchList] = useState(false)
 
   const initialState: ClientModelMap[] = []
@@ -103,8 +104,17 @@ function Main() {
 
   const fetchNextPage = useCallback(async () => {
     if (currentPage === 0) return
-    const clients = await fetchNextPageAllClients(currentPage)
-    dispatchAllClients({ type: 'ADD_PAGE', payload: clients.allClients })
+    setIsLoadingViewMoreButton(true)
+    fetchNextPageAllClients(currentPage)
+      .then((res) => {
+        dispatchAllClients({ type: 'ADD_PAGE', payload: res.allClients })
+      })
+      .catch(() => {
+        setIsLoadingViewMoreButton(false)
+      })
+      .finally(() => {
+        setIsLoadingViewMoreButton(false)
+      })
   }, [currentPage])
 
   useEffect(() => {
@@ -122,10 +132,12 @@ function Main() {
 
     socket.on('server:addOneClient:ADMIN', (data) => {
       dispatchAllClients({ type: 'ADD_CLIENT', payload: data })
+      setTotalClients(totalClients + 1)
     })
 
     socket.on('server:deleteOneClientOfLists:ADMIN', (id) => {
       dispatchAllClients({ type: 'DELETE_CLIENT', payload: id })
+      setTotalClients(totalClients - 1)
     })
 
     socket.on(`server:updateMyListOfClients:${authState.id}`, (data) => {
@@ -134,10 +146,12 @@ function Main() {
 
     socket.on(`server:addOneClient:${authState.id}`, (data) => {
       dispatchMyClients({ type: 'ADD_CLIENT', payload: data })
+      setTotalMyClients(totalMyClients + 1)
     })
 
     socket.on(`server:deleteOneClientOfLists:${authState.id}`, (id) => {
       dispatchMyClients({ type: 'DELETE_CLIENT', payload: id })
+      setTotalMyClients(totalMyClients - 1)
     })
 
     return () => {
@@ -148,7 +162,7 @@ function Main() {
       socket.off(`server:addOneClient:${authState.id}`)
       socket.off(`server:deleteOneClientOfLists:${authState.id}`)
     }
-  }, [authState.role, authState.id])
+  }, [authState.role, authState.id, totalClients, totalMyClients])
 
   return (
     <LayoutPrivate>
@@ -185,6 +199,7 @@ function Main() {
               onOpenDeleteDialog={onOpenDeleteDialog}
               setClientToDelete={setClientToDelete}
               isLoadingListButton={isLoadingListButton}
+              isLoadingViewMoreButton={isLoadingViewMoreButton}
               socket={socket}
             />
           </>
@@ -199,6 +214,7 @@ function Main() {
             onOpenDeleteDialog={onOpenDeleteDialog}
             setClientToDelete={setClientToDelete}
             isLoadingListButton={isLoadingListButton}
+            isLoadingViewMoreButton={isLoadingViewMoreButton}
             socket={socket}
           />
         )}
