@@ -28,6 +28,9 @@ export const reducerClients = (state: any, action: any) => {
       )
       return newList
     }
+    case 'ADD_PAGE': {
+      return state.concat(action.payload)
+    }
     default: {
       return state
     }

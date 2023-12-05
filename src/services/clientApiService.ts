@@ -16,10 +16,17 @@ export function createNewClientService(data: object) {
     })
 }
 
-export function getAllClientsService() {
+export function getAllClientsService(
+  pagination: {
+    pgsize: number
+  } = { pgsize: 21 }
+) {
   return axios
-    .get(`${BASEURL}/`)
-    .then((res) => res?.data?.data)
+    .get(`${BASEURL}/?pgsize=${pagination.pgsize}`)
+    .then((res) => ({
+      allClients: res?.data?.data,
+      totalClients: res?.data?.totalClients
+    }))
     .catch(() => {
       throw 'Ha ocurrido un error'
     })
@@ -28,7 +35,10 @@ export function getAllClientsService() {
 export function getAllClientsForEmployeeService(employeeId: string) {
   return axios
     .get(`${BASEURL}/${employeeId}`)
-    .then((res) => res?.data?.data)
+    .then((res) => ({
+      myClients: res?.data?.data,
+      totalMyClients: res?.data?.totalClients
+    }))
     .catch(() => {
       throw 'Ha ocurrido un error'
     })
@@ -74,6 +84,18 @@ export function deleteManyClientsService(employeeId: string) {
   return axios
     .delete(`${BASEURL}/many/${employeeId}`)
     .then((res) => res?.data?.data)
+    .catch(() => {
+      throw 'Ha ocurrido un error'
+    })
+}
+
+export function fetchNextPageAllClients(pgnum: number) {
+  return axios
+    .get(`${BASEURL}/?pgnum=${pgnum}`)
+    .then((res) => ({
+      allClients: res?.data?.data,
+      totalClients: res?.data?.totalClients
+    }))
     .catch(() => {
       throw 'Ha ocurrido un error'
     })

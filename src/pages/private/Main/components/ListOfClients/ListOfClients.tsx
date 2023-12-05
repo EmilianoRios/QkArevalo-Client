@@ -1,11 +1,14 @@
 import { ClientModelMap } from '@/models'
 import { CardClient, SearchClient } from '@/pages'
-import { Divider, Spinner, Text, VStack } from '@chakra-ui/react'
+import { Button, Divider, Spinner, Text, VStack } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 
 interface ListOfClientsProps {
   listOfClients: ClientModelMap[]
+  totalOfClients: number
+  currentPage: number
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
   viewClientPerUser: boolean
   switchList: boolean
   onOpenDeleteDialog: () => void
@@ -16,6 +19,9 @@ interface ListOfClientsProps {
 
 const ListOfClients: React.FC<ListOfClientsProps> = ({
   listOfClients,
+  totalOfClients,
+  currentPage,
+  setCurrentPage,
   viewClientPerUser,
   switchList,
   onOpenDeleteDialog,
@@ -72,13 +78,12 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
         className={'list-of-clients'}
         py={1}>
         {listOfClientsFiltered &&
-          listOfClientsFiltered.map((client: ClientModelMap, index, array) => {
+          listOfClientsFiltered.map((client: ClientModelMap) => {
             return (
               <CardClient
                 key={client.id}
                 viewClientPerUser={viewClientPerUser}
-                index={index}
-                array={array}
+                index={totalOfClients--}
                 searchTerm={searchTerm}
                 client={client}
                 switchList={switchList}
@@ -88,6 +93,14 @@ const ListOfClients: React.FC<ListOfClientsProps> = ({
               />
             )
           })}
+        {switchList && !searchTerm && (
+          <Button
+            size={'sm'}
+            p={2}
+            onClick={() => setCurrentPage(currentPage + 1)}>
+            Cargar más
+          </Button>
+        )}
         {!isLoadingListButton && listOfClients?.length === 0 && (
           <VStack pb={12}>
             <Text>{'No tienes ningún cliente!.'}</Text>

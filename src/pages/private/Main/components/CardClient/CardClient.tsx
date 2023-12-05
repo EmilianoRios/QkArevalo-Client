@@ -12,7 +12,6 @@ interface CardClientProps {
   searchTerm: string
   switchList: boolean
   client: ClientModelMap
-  array: ClientModelMap[]
   index: number
   onOpenDeleteDialog: () => void
   setClientToDelete: React.Dispatch<React.SetStateAction<ClientModelMap>>
@@ -24,7 +23,6 @@ const CardClient: React.FC<CardClientProps> = ({
   searchTerm,
   switchList,
   client,
-  array,
   index,
   onOpenDeleteDialog,
   setClientToDelete,
@@ -69,8 +67,8 @@ const CardClient: React.FC<CardClientProps> = ({
             <Flex gap={2}>
               {!searchTerm && (
                 <Flex w={'auto'}>
-                  <Heading textAlign={'center'} fontSize={'2rem'}>
-                    {array.length - index}
+                  <Heading textAlign={'center'} fontSize={'1.5rem'}>
+                    {index}
                   </Heading>
                 </Flex>
               )}

@@ -1,12 +1,34 @@
 import { ClientModelMap, StatusClient } from '@/models'
+import {
+  getAllClientsForEmployeeService,
+  getAllClientsService
+} from '@/services'
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
 interface CreatePdfProps {
-  listOfClients: ClientModelMap[]
+  isMyClients: boolean
+  idUser: string
 }
 
-const CreatePdf: React.FC<CreatePdfProps> = ({ listOfClients }) => {
+const CreatePdf: React.FC<CreatePdfProps> = ({ isMyClients, idUser }) => {
+  const [listOfClients, setListOfClients] = useState<ClientModelMap[]>([])
+
+  const fetchClients = useCallback(async () => {
+    if (isMyClients) {
+      const myClients = await getAllClientsForEmployeeService(idUser)
+      setListOfClients(myClients.myClients)
+    } else {
+      const allClients = await getAllClientsService({ pgsize: 5000 })
+      setListOfClients(allClients.allClients)
+    }
+  }, [isMyClients, idUser])
+
+  useEffect(() => {
+    fetchClients()
+  }, [fetchClients])
+
   const stylesRow = StyleSheet.create({
     row: {
       flexDirection: 'row',
@@ -133,18 +155,19 @@ const CreatePdf: React.FC<CreatePdfProps> = ({ listOfClients }) => {
             <Text style={stylesHeader.status}>Estado</Text>
             <Text style={stylesHeader.of}>De</Text>
           </View>
-          {listOfClients.map((client: ClientModelMap) => (
-            <View style={stylesRow.row} key={client.id}>
-              <Text style={stylesRow.name}>{client.name}</Text>
-              <Text style={stylesRow.dni}>
-                {client.dni ? client.dni : 'Sin DNI.'}
-              </Text>
-              <Text style={stylesRow.status}>
-                {setNameOfStatus(client.status)}
-              </Text>
-              <Text style={stylesRow.of}>{client.employee?.name}</Text>
-            </View>
-          ))}
+          {listOfClients &&
+            listOfClients.map((client: ClientModelMap) => (
+              <View style={stylesRow.row} key={client.id}>
+                <Text style={stylesRow.name}>{client.name}</Text>
+                <Text style={stylesRow.dni}>
+                  {client.dni ? client.dni : 'Sin DNI.'}
+                </Text>
+                <Text style={stylesRow.status}>
+                  {setNameOfStatus(client.status)}
+                </Text>
+                <Text style={stylesRow.of}>{client.employee?.name}</Text>
+              </View>
+            ))}
         </View>
         <Text
           style={stylesHeader.pageNumber}

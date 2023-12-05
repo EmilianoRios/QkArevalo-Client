@@ -1,7 +1,7 @@
 import { LoadingPage } from '@/components'
 import { AuthGuard, RoleGuard } from '@/guard'
 import { PrivateRoutes, Roles } from '@/models'
-import { Login, Main } from '@/pages'
+import { DowloadPDF, Login, Main } from '@/pages'
 import { AppPrivateRoutes } from '@/routes'
 import { RoutesWithNotFound } from '@/utils'
 import { Route } from 'react-router-dom'
@@ -25,6 +25,7 @@ function AppPublicRoutes({ isLoadingPrivate }: Props) {
             />
           </Route>
           <Route path={`/${PrivateRoutes.ME}`} element={<Main />} />
+          <Route path={`/${PrivateRoutes.DOWNLOAD}`} element={<DowloadPDF />} />
         </Route>
       ) : (
         <Route element={<LoadingPage />} />

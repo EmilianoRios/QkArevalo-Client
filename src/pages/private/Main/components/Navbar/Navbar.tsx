@@ -25,16 +25,14 @@ import {
 } from '@chakra-ui/react'
 import React from 'react'
 import { BiMenu } from 'react-icons/bi'
-import { FaFileDownload } from 'react-icons/fa'
 import { BsFillTrashFill, BsPeopleFill } from 'react-icons/bs'
+import { FaFileDownload } from 'react-icons/fa'
 import { HiOutlineLogout } from 'react-icons/hi'
 import { IoReload } from 'react-icons/io5'
 import { TiUserAdd } from 'react-icons/ti'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { Socket } from 'socket.io-client'
-import { PDFDownloadLink } from '@react-pdf/renderer'
-import { CreatePdf } from '@/pages'
 
 interface NavbarPrivateProps {
   title: string
@@ -47,9 +45,7 @@ interface NavbarPrivateProps {
 const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
   title,
   socket,
-  onOpenDeleteManyDialog,
-  allClients,
-  myClients
+  onOpenDeleteManyDialog
 }) => {
   const authState = useSelector(
     (state: { user: { id: string; name: string; role: string } }) => state.user
@@ -179,52 +175,19 @@ const NavbarPrivate: React.FC<NavbarPrivateProps> = ({
                         </MenuItem>
                       </>
                     )}
-                    <PDFDownloadLink
-                      document={<CreatePdf listOfClients={allClients} />}
-                      fileName={`Clientes-${Date.now()}.pdf`}>
-                      {({ loading }) =>
-                        loading ? (
-                          <button>Loading Document...</button>
-                        ) : (
-                          <MenuItem
-                            bg={GlobalColors.BGRADIENTDEFAULT}
-                            _hover={{ color: GlobalColors.EMPHASIZED }}
-                            borderRadius={4}>
-                            <Text
-                              display={'flex'}
-                              alignItems={'center'}
-                              gap={1}
-                              transition={'0.1s'}>
-                              Descargar Clientes
-                              <Icon as={FaFileDownload} />
-                            </Text>
-                          </MenuItem>
-                        )
-                      }
-                    </PDFDownloadLink>
-                    <PDFDownloadLink
-                      document={<CreatePdf listOfClients={myClients} />}
-                      fileName={`MisClientes-${Date.now()}.pdf`}>
-                      {({ loading }) =>
-                        loading ? (
-                          <button>Loading Document...</button>
-                        ) : (
-                          <MenuItem
-                            bg={GlobalColors.BGRADIENTDEFAULT}
-                            _hover={{ color: GlobalColors.EMPHASIZED }}
-                            borderRadius={4}>
-                            <Text
-                              display={'flex'}
-                              alignItems={'center'}
-                              gap={1}
-                              transition={'0.1s'}>
-                              Descargar Mis Clientes
-                              <Icon as={FaFileDownload} />
-                            </Text>
-                          </MenuItem>
-                        )
-                      }
-                    </PDFDownloadLink>
+                    <MenuItem
+                      bg={GlobalColors.BGRADIENTDEFAULT}
+                      _hover={{ color: GlobalColors.EMPHASIZED }}
+                      borderRadius={4}
+                      onClick={() => navigate(`/${PrivateRoutes.DOWNLOAD}`)}>
+                      <Text
+                        display={'flex'}
+                        alignItems={'center'}
+                        gap={1}
+                        transition={'0.1s'}>
+                        Descargar PDF <Icon as={FaFileDownload} />
+                      </Text>
+                    </MenuItem>
                     <MenuItem
                       bg={GlobalColors.BGRADIENTDEFAULT}
                       _hover={{ color: GlobalColors.EMPHASIZED }}

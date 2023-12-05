@@ -6,5 +6,6 @@ export const PrivateRoutes = {
   LISTOFUSERS: 'users',
   REGISTER: 'register',
   PRIVATE: 'dashboard',
-  ME: 'me'
+  ME: 'me',
+  DOWNLOAD: 'download'
 }

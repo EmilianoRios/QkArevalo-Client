@@ -8,6 +8,7 @@ import {
   Navbar
 } from '@/pages'
 import {
+  fetchNextPageAllClients,
   getAllClientsForEmployeeService,
   getAllClientsService
 } from '@/services'
@@ -32,6 +33,8 @@ function Main() {
   const authState = useSelector(
     (state: { user: { id: string; name: string; role: string } }) => state.user
   )
+
+  const [currentPage, setCurrentPage] = useState(0)
 
   const emptyClient: ClientModelMap = {
     id: '',
@@ -58,6 +61,9 @@ function Main() {
     initialState
   )
 
+  const [totalClients, setTotalClients] = useState(0)
+  const [totalMyClients, setTotalMyClients] = useState(0)
+
   //alertdialog delete client
   const {
     isOpen: isOpenDeleteDialog,
@@ -82,10 +88,28 @@ function Main() {
       getAllClientsForEmployeeService(authState.id),
       getAllClientsService()
     ])
-    dispatchMyClients({ type: 'FETCH_SUCCESS', payload: myClients })
-    dispatchAllClients({ type: 'FETCH_SUCCESS', payload: allClients })
+
+    dispatchMyClients({ type: 'FETCH_SUCCESS', payload: myClients.myClients })
+    dispatchAllClients({
+      type: 'FETCH_SUCCESS',
+      payload: allClients.allClients
+    })
+
+    setTotalMyClients(myClients.totalMyClients)
+    setTotalClients(allClients.totalClients)
+
     setIsLoadingListButton(false)
   }, [authState.id])
+
+  const fetchNextPage = useCallback(async () => {
+    if (currentPage === 0) return
+    const clients = await fetchNextPageAllClients(currentPage)
+    dispatchAllClients({ type: 'ADD_PAGE', payload: clients.allClients })
+  }, [currentPage])
+
+  useEffect(() => {
+    fetchNextPage()
+  }, [fetchNextPage])
 
   useEffect(() => {
     fetchClients()
@@ -150,18 +174,26 @@ function Main() {
       <Flex flexDirection={'column'} px={4}>
         <Divider my={4} />
         {switchList ? (
-          <ListOfClients
-            listOfClients={allClients}
-            viewClientPerUser={true}
-            switchList={switchList}
-            onOpenDeleteDialog={onOpenDeleteDialog}
-            setClientToDelete={setClientToDelete}
-            isLoadingListButton={isLoadingListButton}
-            socket={socket}
-          />
+          <>
+            <ListOfClients
+              listOfClients={allClients}
+              totalOfClients={totalClients}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              viewClientPerUser={true}
+              switchList={switchList}
+              onOpenDeleteDialog={onOpenDeleteDialog}
+              setClientToDelete={setClientToDelete}
+              isLoadingListButton={isLoadingListButton}
+              socket={socket}
+            />
+          </>
         ) : (
           <ListOfClients
             listOfClients={myClients}
+            totalOfClients={totalMyClients}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
             viewClientPerUser={false}
             switchList={switchList}
             onOpenDeleteDialog={onOpenDeleteDialog}
@@ -220,6 +252,7 @@ function Main() {
             borderRadius={18}
             onClick={() => {
               fetchClients()
+              setCurrentPage(0)
             }}>
             <Text
               display={'flex'}

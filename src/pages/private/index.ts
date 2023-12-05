@@ -1,4 +1,5 @@
 export * from './CreatePdf'
+export * from './DowloadPDF'
 export * from './ListOfUsers'
 export * from './Main/components/CardClient'
 export * from './Main/components/DeleteDialog'
